@@ -8,13 +8,17 @@
  * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
  */
 
-class Amazon_Payments_Model_Login
+class Amazon_Payments_Model_Login extends Mage_Core_Model_Abstract
 {
 
     private $http_client_config = array(
             'maxredirects' => 2,
             'timeout' => 30);
 
+    protected function _construct()
+    {
+        $this->_init('amazon_login/login');
+    }
     /**
      * Get config Client ID
      */
