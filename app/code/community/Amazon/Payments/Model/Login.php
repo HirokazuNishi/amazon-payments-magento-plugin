@@ -17,7 +17,7 @@ class Amazon_Payments_Model_Login extends Mage_Core_Model_Abstract
 
     protected function _construct()
     {
-        $this->_init('amazon_payment/login');
+        $this->_init('amazon_payments/login');
     }
     /**
      * Get config Client ID
