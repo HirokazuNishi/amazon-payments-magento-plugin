@@ -20,7 +20,7 @@ class Amazon_Payments_Model_Config
     const CONFIG_XML_PATH_SELLER_ID      = 'payment/amazon_payments/seller_id';
     const CONFIG_XML_PATH_ACCESS_KEY     = 'payment/amazon_payments/access_key';
     const CONFIG_XML_PATH_ACCESS_SECRET  = 'payment/amazon_payments/access_secret';
-    const CONFIG_XML_PATH_REGION         = 'payment/amazon_payments/ap_credentials/region';
+    const CONFIG_XML_PATH_REGION         = 'payment/amazon_payments/region';
     const CONFIG_XML_PATH_SANDBOX        = 'payment/amazon_payments/sandbox';
     const CONFIG_XML_PATH_DEBUG          = 'payment/amazon_payments/debug';
     const CONFIG_XML_PATH_CHECKOUT_PAGE  = 'payment/amazon_payments/checkout_page';
