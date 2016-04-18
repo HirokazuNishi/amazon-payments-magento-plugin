@@ -16,7 +16,7 @@ class Amazon_Payments_Block_Login_Script extends Mage_Core_Block_Template
      */
     public function getWidgetsUrl()
     {
-        switch (Mage::getStoreConfig('amazon_login/settings/region')) {
+        switch (Mage::getStoreConfig('payment/amazon_payments/region')) {
           case 'uk':
               $staticRegion = 'eu';
               $widgetRegion = 'uk';
