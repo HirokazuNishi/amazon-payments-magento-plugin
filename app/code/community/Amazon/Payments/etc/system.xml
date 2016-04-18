@@ -174,7 +174,6 @@
                       <config_path>payment/amazon_payments/sandbox</config_path>
                     </sandbox>
 
-                    <!--
                     <region translate="label">
                         <label>API Region</label>
                         <frontend_type>select</frontend_type>
@@ -185,7 +184,6 @@
                         <show_in_store>1</show_in_store>
                         <config_path>payment/amazon_payments/region</config_path>
                     </region>
-                    -->
 
                 </fields>
             </ap_credentials>

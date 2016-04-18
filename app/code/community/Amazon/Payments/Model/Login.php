@@ -43,7 +43,7 @@ class Amazon_Login_Model_Api
     public function request($path, array $postParams = array())
     {
         $sandbox = (Mage::getStoreConfig('payment/amazon_payments/sandbox')) ? 'sandbox.' : '';
-        $region = Mage::getStoreConfig('payment/amazon_payments/region');
+        $region = Mage::getStoreConfig('payment/amazon_payments/ap_credentials/region');
         $client = new Zend_Http_Client();
         if($region == 'jp') {
             if($sandbox) {

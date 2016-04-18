@@ -37,7 +37,7 @@ class Amazon_Payments_Model_System_Config_Backend_Enabled extends Mage_Core_Mode
 
         if ($isEnabled && $data['access_key']['value']) {
             $access_secret = $data['access_secret']['value'];
-            $region = Mage::getStoreConfig('payment/amazon_payments/region');
+            $region = Mage::getStoreConfig('payment/amazon_payments/ap_credentials/region');
             if($region == 'jp') {
                 $serviceURL = "https://mws.amazonservices.jp/Sellers/2011-07-01";
             } else {
