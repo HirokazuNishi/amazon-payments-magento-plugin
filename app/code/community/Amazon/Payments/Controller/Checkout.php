@@ -208,7 +208,7 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
 
             // Split name into first/last
             $name      = mb_convert_kana($address->getName(), 's', 'utf-8');
-            $names = preg_split('/^(.*)\s(.*)$/', $name);
+            $names = preg_split('/\s/', $name);
             if(count($names) == 2) {
                 $firstName = $names[0];
                 $lastName = $names[1];
