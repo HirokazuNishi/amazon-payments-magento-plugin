@@ -8,7 +8,7 @@
  * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
  */
 
-class Amazon_Login_Model_Api
+class Amazon_Payments_Model_Login
 {
 
     private $http_client_config = array(
