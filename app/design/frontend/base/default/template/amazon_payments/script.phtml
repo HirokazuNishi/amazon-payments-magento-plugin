@@ -46,30 +46,32 @@ AmazonModal.prototype.initialize = function(width) {
 
 AmazonModal.prototype.show = function(url) {
 
-    this.oPopup = new Window({
-        id:'amazon_modal',
-        className: 'alphacube',
-        url: url,
-        width: this.width,
-        height: 700,
-        minimizable: false,
-        maximizable: false,
-        showEffectOptions: {
-            duration: 0.4
-        },
-        hideEffectOptions:{
-            duration: 0.4
-        },
-        destroyOnClose: true,
-        onShow: function() { Event.observe($('overlay_modal'), 'click', function() { Windows.closeAll(); }) },
-        onClose: function() { $('overlay_modal').remove(); }
-    });
-    this.oPopup.setZIndex(100);
-    this.oPopup.showCenter(true);
+    if ($('amazon_modal') == undefined) {
+        this.oPopup = new Window({
+            id: 'amazon_modal',
+            className: 'alphacube',
+            url: url,
+            width: this.width,
+            height: 700,
+            minimizable: false,
+            maximizable: false,
+            showEffectOptions: {
+                duration: 0.4
+            },
+            hideEffectOptions:{
+                duration: 0.4
+            },
+            destroyOnClose: true,
+            onShow: function() { Event.observe($('overlay_modal'), 'click', function() { Windows.closeAll(); }) },
+            onClose: function() { $('overlay_modal').remove(); }
+        });
+        this.oPopup.setZIndex(100);
+        this.oPopup.showCenter(true);
 
-    // Reponsive modal
-    Event.observe(window, "resize", this.resize.bind(this));
-    this.resize();
+        // Reponsive modal
+        Event.observe(window, "resize", this.resize.bind(this));
+        this.resize();
+    }
 }
 
 AmazonModal.prototype.resize = function() {

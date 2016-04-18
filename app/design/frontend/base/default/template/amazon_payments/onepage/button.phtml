@@ -21,10 +21,12 @@
       size: "<?php echo $this->getButtonSize(); ?>",
       authorization: function() {
           loginOptions = {
-              scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>"
+              scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
+                response_type: 'token',
+                popup: <?php print $this->isPopup(); ?>
           };
 
-          authRequest = amazon.Login.authorize (loginOptions, "<?php echo $this->getOnepageCheckoutUrl(); ?>");
+          authRequest = amazon.Login.authorize (loginOptions, "<?php echo (!$this->isPopup()) ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
       },
       onError: function(error) {
           console.log(error);

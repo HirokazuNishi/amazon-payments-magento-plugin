@@ -12,9 +12,6 @@
         <Amazon_Payments>
             <active>true</active>
             <codePool>community</codePool>
-            <depends>
-                <Amazon_Login />
-            </depends>
         </Amazon_Payments>
     </modules>
 </config>

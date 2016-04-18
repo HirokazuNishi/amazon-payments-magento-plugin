@@ -190,7 +190,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
             case Amazon_Payments_Model_Api::AUTH_STATUS_DECLINED:
 
                 if ($status->getReasonCode() == 'TransactionTimedOut') {
-                    // Preform async if TTO
+                    // Perform async if TTO
                     if ($this->isForceSync && $this->getConfigData('is_async')) {
                         // Remove sandbox simulation test
                         if (strpos($sellerAuthorizationNote, 'TransactionTimedOut') !== false) {

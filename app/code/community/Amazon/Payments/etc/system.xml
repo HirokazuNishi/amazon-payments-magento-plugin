@@ -15,32 +15,66 @@
 
       <groups>
         <amazon_payments translate="label">
-          <label>Amazon Payments / Login and Pay with Amazon</label>
-          <frontend_type>text</frontend_type>
+          <label>Login and Pay with Amazon</label>
           <sort_order>100</sort_order>
+          <expanded>1</expanded>
           <show_in_default>1</show_in_default>
           <show_in_website>1</show_in_website>
           <show_in_store>1</show_in_store>
+
+
             <comment>
             <![CDATA[
-
-                    <a href="https://payments.amazon.com/" target="_blank"><img src="https://images-na.ssl-images-amazon.com/images/G/01/Iris3_US/en_US/inca/images/btnPaywAMZN-gld-Desktop-2x.png" /></a>
-                    <br/><br />
-                    Login and Pay with Amazon helps you increase conversion, reduce fraud, acquire new customers and build loyalty.
+                    Login and Pay with Amazon helps you increase conversation, reduce fraud, acquire new customers and build loyalty.  <a href="https://payments.amazon.com/" target="_blank">Learn More.</a>
                     <br /><br />
 
-                    <strong>Configuring Amazon Payments</strong>
-                    <ol style="list-style:inside decimal;">
-                      <li>Register or login to retrieve your account keys: &nbsp<button onclick="javascript:window.open(&#39;https://sellercentral.amazon.com/hz/me/sp/signup?solutionProviderOptions=lwa%3Bmws-acc%3B&marketplaceId=AGWSWK15IEJJ7&solutionProviderToken=AAAAAQAAAAEAAAAQCz2wulRfR9nOADyzVQrq5wAAAHAIIULh6RBNvlw68WY5S9ATlmInlyg2PLVF44yUVowkyjvDZPhtLf3UYn6fshHlKqwR4qptfBeltbxLtLrrIfK6JoxzuWe9FRTnCfSey8a0sFKuL3mwNenjLyMC9BAN1xU0S6pebxA2mz8t8Y1v5Axi&solutionProviderId=A2K7HE1S3M5XJ&#39;, &#39;get_keys&#39,&#39;left=50, top=50, width=950, height=750&#39;); return false;" class="scalable" type="button"><span>Login to Get Your Keys</span></button>
-                      <li>Add your url to "Allowed JavaScript Origins" in <a href="https://sellercentral.amazon.com/" target="_blank">Amazon Seller Central</a>.
-                      <li>Under General->Web, enable "Use Secure URLs in Frontend." (HTTPS is required.)
-                    </ol>
+
+                    <div id="amazon_simplepath">
+                        <span style="display:inline-block;padding-bottom:1em;">
+                            <button><span>Get started with account registration</span></button>
+                            &nbsp; &nbsp;
+                            <button><span>My account is ready, I need to connect it to Magento</span></button>
+                        </span>
+                        <span style="display:inline-block;">
+                            &nbsp; or &nbsp;
+                            <a href="#" id="simplepath-skip">I've already setup Pay with Amazon, I want to edit my settings</a>
+                        </span>
+
+                            <p style="color:red;display:none" id="amazon_https_required">In order to enable automatic account configuration using Amazon's secure key exchange, please turn on secure admin pages in System > Configuration > Web > Use secure URLs in Admin.</p>
+                            <p style="color:red;display:none" id="amazon_openssl_required">In order to set keys, the OpenSSL PHP library is required.</p>
+                            <p style="color:red;display:none" id="amazon_reload">Updating your config with new keys, please wait...</p>
+
+                    </div>
+
+                    <div id="amazon_simplepath_back" style="display:none;margin-bottom:1em;margin-top:-0.5em;">
+                      <a href="#">&laquo; Back</a>
+                    </div>
+
+
+                    <div id="amazon_instructions">
+
+                      <strong>Steps to Launch Login and Pay with Amazon</strong>
+                      <ol style="list-style:inside decimal;">
+                        <li>Register through our custom <a href="https://sellercentral.amazon.com/hz/me/sp/signup?solutionProviderOptions=lwa%3Bmws-acc%3B&marketplaceId=AGWSWK15IEJJ7&solutionProviderToken=AAAAAQAAAAEAAAAQCz2wulRfR9nOADyzVQrq5wAAAHAIIULh6RBNvlw68WY5S9ATlmInlyg2PLVF44yUVowkyjvDZPhtLf3UYn6fshHlKqwR4qptfBeltbxLtLrrIfK6JoxzuWe9FRTnCfSey8a0sFKuL3mwNenjLyMC9BAN1xU0S6pebxA2mz8t8Y1v5Axi&solutionProviderId=A2K7HE1S3M5XJ" target="_blank">Magento registration</a> or visit <a href="https://payments.amazon.com/signup" target="_blank">https://payments.amazon.com/signup</a>
+                        <!--
+                        Register or login to retrieve your account keys: &nbsp<button onclick="javascript:window.open(&#39;&#39;, &#39;get_keys&#39,&#39;left=50, top=50, width=950, height=750&#39;); return false;" class="scalable" type="button"><span>Login to Get Your Keys</span></button></span></button>
+                        -->
+
+
+                        <li>Visit <a href="https://sellercentral.amazon.com/" target="_blank">Amazon Seller Central</a>  and Configure OAuth "Allowed Javascript Origins" in your Login with Amazon settings.
+                        <li>Under General->Web, enable "Use Secure URLs in Frontend." (HTTPS is required.)
+                      </ol>
+                    </div>
+
+
 
                     <div style="clear:both;"></div>
             ]]>
             </comment>
 
+
           <fields>
+
 
             <enabled translate="label">
               <label>Enabled</label>
@@ -54,299 +88,383 @@
               <show_in_store>0</show_in_store>
             </enabled>
 
-           <heading_creds translate="label">
-                <label>Client Credentials</label>
-                <frontend_type>text</frontend_type>
-                <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+            <ap_credentials type="group" translate="label">
+                <label>Credentials</label>
+                <show_in_default>1</show_in_default>
+                <show_in_website>1</show_in_website>
+                <expanded>1</expanded>
+                <frontend_model>adminhtml/system_config_form_fieldset</frontend_model>
                 <sort_order>10</sort_order>
+                <fields>
+
+                    <simplepath_import_button>
+                        <frontend_type>button</frontend_type>
+                        <frontend_model>amazon_payments/adminhtml_system_config_simplepathimport</frontend_model>
+                        <sort_order>6</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                    </simplepath_import_button>
+                    <simplepath_json translate="label">
+                        <label>Import From Clipboard</label>
+                        <frontend_type>textarea</frontend_type>
+                        <backend_model>amazon_payments/system_config_backend_simplepath</backend_model>
+                        <comment><![CDATA[<button><span>Save</span></button>]]></comment>
+                        <sort_order>7</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                    </simplepath_json>
+                    <seller_id translate="label">
+                        <label>SellerId/MerchantId</label>
+                        <frontend_type>text</frontend_type>
+                        <sort_order>15</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/seller_id</config_path>
+                    </seller_id>
+                    <access_key translate="label">
+                        <label>MWS Access Key</label>
+                        <frontend_type>text</frontend_type>
+                        <sort_order>20</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/access_key</config_path>
+                    </access_key>
+                    <access_secret translate="label">
+                        <label>MWS Secret Key</label>
+                        <frontend_type>obscure</frontend_type>
+                        <sort_order>30</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/access_secret</config_path>
+                        <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+                    </access_secret>
+                    <client_id translate="label">
+                        <label>Client ID</label>
+                        <frontend_type>text</frontend_type>
+                        <sort_order>31</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/client_id</config_path>
+                    </client_id>
+                    <client_secret translate="label">
+                        <label>Client Secret</label>
+                        <frontend_type>obscure</frontend_type>
+                        <sort_order>32</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/client_secret</config_path>
+                        <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+                    </client_secret>
+
+                    <sandbox translate="label">
+                      <label>Sandbox Mode</label>
+                      <frontend_type>select</frontend_type>
+                      <source_model>adminhtml/system_config_source_yesno</source_model>
+                      <sort_order>510</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <config_path>payment/amazon_payments/sandbox</config_path>
+                    </sandbox>
+
+                    <!--
+                    <region translate="label">
+                        <label>API Region</label>
+                        <frontend_type>select</frontend_type>
+                        <source_model>amazon_payments/system_config_source_region</source_model>
+                        <sort_order>35</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <config_path>payment/amazon_payments/region</config_path>
+                    </region>
+                    -->
+
+                </fields>
+            </ap_credentials>
+
+            <ap_checkout type="group" translate="label">
+                <label>Checkout Style</label>
                 <show_in_default>1</show_in_default>
                 <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </heading_creds>
-
-             <seller_id translate="label">
-                <label>Seller/Merchant ID</label>
-                <frontend_type>text</frontend_type>
-                <sort_order>15</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </seller_id>
-
-            <access_key translate="label">
-                <label>MWS Access Key</label>
-                <frontend_type>text</frontend_type>
                 <sort_order>20</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </access_key>
-            <access_secret translate="label">
-                <label>MWS Secret Key</label>
-                <frontend_type>text</frontend_type>
-                <sort_order>30</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </access_secret>
+                <fields>
+                    <checkout_page translate="label">
+                        <label>Checkout Page Type</label>
+                        <frontend_type>select</frontend_type>
+                        <source_model>amazon_payments/system_config_source_checkoutpage</source_model>
+                        <sort_order>110</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/checkout_page</config_path>
+                    </checkout_page>
+                    <show_pay_cart translate="label">
+                        <label>Show Pay with Amazon Button on Cart</label>
+                        <comment><![CDATA[Only applies when OnePage Checkout is used, otherwise button is always shown.]]></comment>
+                        <frontend_type>select</frontend_type>
+                        <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <sort_order>120</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/show_pay_cart</config_path>
+                    </show_pay_cart>
+                    <visible_on_product translate="label">
+                        <label>Shortcut on Product View</label>
+                        <comment><![CDATA[Pop-up must be set to "No" under "Login with Amazon" below.]]></comment>
+                        <frontend_type>select</frontend_type>
+                        <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <sort_order>160</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <config_path>payment/amazon_payments/visible_on_product</config_path>
+                    </visible_on_product>
+                    <use_in_checkout translate="label">
+                        <label>Display as Payment Option</label>
+                        <comment><![CDATA[Add pay button under "Payment Information" during checkout. (Recommended flow is to display button before user enters billing and shipping information.)]]></comment>
+                        <frontend_type>select</frontend_type>
+                        <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <sort_order>180</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <config_path>payment/amazon_payments/use_in_checkout</config_path>
+                    </use_in_checkout>
+                    <sort_order translate="label">
+                        <label>Sort Order</label>
+                        <frontend_type>text</frontend_type>
+                        <sort_order>190</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>0</show_in_store>
+                        <frontend_class>validate-number</frontend_class>
+                        <depends><use_in_checkout>1</use_in_checkout></depends>
+                        <config_path>payment/amazon_payments/sort_order</config_path>
+                    </sort_order>
+                    <buttons type="group" translate="label">
+                        <label>Button Styles</label>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <sort_order>200</sort_order>
+                        <fields>
+                            <button_type translate="label">
+                                <label>Button Label</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>amazon_payments/system_config_source_buttontype</source_model>
+                                <sort_order>410</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                                <config_path>payment/amazon_payments/button_type</config_path>
+                            </button_type>
+                            <button_color translate="label">
+                                <label>Button Color</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>amazon_payments/system_config_source_buttoncolor</source_model>
+                                <sort_order>430</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                                <config_path>payment/amazon_payments/button_color</config_path>
+                            </button_color>
+                            <button_size translate="label">
+                                <label>Button Size</label>
+                                <frontend_type>select</frontend_type>
+                                <source_model>amazon_payments/system_config_source_buttonsize</source_model>
+                                <sort_order>440</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                                <config_path>payment/amazon_payments/button_size</config_path>
+                            </button_size>
+                            <button_badge translate="label">
+                                <label>Display Acceptance Badge</label>
+                                <comment><![CDATA[Display "Amazon Payments" acceptance mark in right sidebar.]]></comment>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>450</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>0</show_in_store>
+                                <config_path>payment/amazon_payments/button_badge</config_path>
+                            </button_badge>
+                        </fields>
+                    </buttons>
+                    <ap_login type="group" translate="label">
+                        <label>Login with Amazon</label>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <sort_order>210</sort_order>
+                        <fields>
+                            <popup translate="label">
+                                <label>Pop-up</label>
+                                <comment>
+                                    <![CDATA[Pop-up window or full-page redirect.]]>
+                                </comment>
+                                <frontend_type>select</frontend_type>
+                                <source_model>adminhtml/system_config_source_yesno</source_model>
+                                <sort_order>40</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                                <config_path>amazon_login/settings/popup</config_path>
+                            </popup>
+                            <popupcomment>
+                                <frontend_type>note</frontend_type>
+                                <comment><model>amazon_payments/system_config_backend_popupcomment</model></comment>
+                                <depends><popup>0</popup></depends>
+                                <sort_order>41</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                            </popupcomment>
+                            <additional_scope translate="label" module="amazon_payments">
+                                <label>Additional Access Scope</label>
+                                <comment>
+                                    <![CDATA[Optional access scope strings during login.]]>
+                                </comment>
+                                <frontend_type>text</frontend_type>
+                                <sort_order>50</sort_order>
+                                <show_in_default>1</show_in_default>
+                                <show_in_website>1</show_in_website>
+                                <show_in_store>1</show_in_store>
+                                <config_path>amazon_login/settings/additional_scope</config_path>
+                            </additional_scope>
+                        </fields>
+                    </ap_login>
+                </fields>
+          </ap_checkout>
 
-            <client_id translate="label">
-                <label>Client ID</label>
-                <frontend_type>text</frontend_type>
-                <backend_model>amazon_payments/system_config_backend_clientid</backend_model>
-                <sort_order>31</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </client_id>
-
-            <client_secret translate="label">
-                <label>Client Secret</label>
-                <frontend_type>text</frontend_type>
-                <backend_model>amazon_payments/system_config_backend_clientsecret</backend_model>
-                <sort_order>32</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </client_secret>
-
-
-            <region translate="label">
-                <label>API Region</label>
-                <frontend_type>select</frontend_type>
-                <source_model>amazon_payments/system_config_source_region</source_model>
-                <sort_order>35</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>1</show_in_store>
-            </region>
-
-
-            <heading_config translate="label">
-                <label>Checkout Configuration</label>
-                <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                <sort_order>100</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </heading_config>
-
-
-            <checkout_page translate="label">
-                <label>Checkout Page Type</label>
-                <frontend_type>select</frontend_type>
-                <source_model>amazon_payments/system_config_source_checkoutpage</source_model>
-                <sort_order>110</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </checkout_page>
-
-            <show_pay_cart translate="label">
-                <label>Show Pay with Amazon Button on Cart</label>
-                <comment><![CDATA[Only applies when OnePage Checkout is used, otherwise button is always shown.]]></comment>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_yesno</source_model>
-                <sort_order>120</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </show_pay_cart>
-
-            <payment_action translate="label">
-                <label>Payment Action</label>
-                <frontend_type>select</frontend_type>
-                <source_model>amazon_payments/system_config_source_paymentaction</source_model>
-                <sort_order>130</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </payment_action>
-
-            <payment_action_none_note translate="label">
-                <frontend_type>note</frontend_type>
-                <comment><![CDATA[You have set orders to not have funds authorized, so you should set the New Order Status below to a custom status other than "Pending" or "Processing." Funds will need to be captured from a third-party system.]]></comment>
-                <sort_order>135</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-                <depends><payment_action>new</payment_action></depends>
-            </payment_action_none_note>
-
-            <order_status translate="label">
-                <label>New Order Status</label>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_order_status_newprocessing</source_model>
-                <sort_order>140</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </order_status>
-
-            <store_name translate="label">
-                <label>Email Store Name</label>
-                <frontend_type>text</frontend_type>
-                <comment><![CDATA[Store name to display in Amazon emails. If left blank, current Magento store name will be used.]]></comment>
-                <sort_order>150</sort_order>
-                <show_in_default>0</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>1</show_in_store>
-            </store_name>
-
-            <visible_on_product translate="label">
-                <label>Shortcut on Product View</label>
-                <comment><![CDATA[Pop-up must be set to "No" under Customers->Login with Amazon.]]></comment>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_yesno</source_model>
-                <sort_order>160</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>1</show_in_store>
-            </visible_on_product>
-
-            <secure_cart translate="label">
-                <label>Secure Cart Page</label>
-                <comment><![CDATA[HTTPS is required to use the Amazon button on the cart page.]]></comment>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_yesno</source_model>
-                <sort_order>170</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </secure_cart>
-
-            <use_in_checkout translate="label">
-                <label>Display as Payment Option</label>
-                <comment><![CDATA[Add pay button under "Payment Information" during checkout. (Recommended flow is to display button before user enters billing and shipping information.)]]></comment>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_yesno</source_model>
-                <sort_order>180</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </use_in_checkout>
-
-            <sort_order translate="label">
-                <label>Sort Order</label>
-                <frontend_type>text</frontend_type>
-                <sort_order>190</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-                <frontend_class>validate-number</frontend_class>
-                <depends><use_in_checkout>1</use_in_checkout></depends>
-            </sort_order>
-
-            <is_async translate="label">
-                <label>Asynchronous Mode</label>
-                <comment><![CDATA[In asynchronous mode, the payment is returned as a Pending status instead of an immediate Open or Declined status. Customers will need to be notified of a Declined status.]]></comment>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_yesno</source_model>
-                <sort_order>200</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </is_async>
-
-            <heading_button translate="label">
-                <label>Button Style</label>
-                <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                <sort_order>400</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </heading_button>
-
-            <button_type translate="label">
-                <label>Button Label</label>
-                <frontend_type>select</frontend_type>
-                <source_model>amazon_payments/system_config_source_buttontype</source_model>
-                <sort_order>410</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>1</show_in_store>
-            </button_type>
-
-            <button_color translate="label">
-                <label>Button Color</label>
-                <frontend_type>select</frontend_type>
-                <source_model>amazon_payments/system_config_source_buttoncolor</source_model>
-                <sort_order>430</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>1</show_in_store>
-            </button_color>
-
-            <button_size translate="label">
-                <label>Button Size</label>
-                <frontend_type>select</frontend_type>
-                <source_model>amazon_payments/system_config_source_buttonsize</source_model>
-                <sort_order>440</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>1</show_in_store>
-            </button_size>
-
-            <button_badge translate="label">
-                <label>Display Acceptance Badge</label>
-                <comment><![CDATA[Display "Amazon Payments" acceptance mark in right sidebar.]]></comment>
-                <frontend_type>select</frontend_type>
-                <source_model>adminhtml/system_config_source_yesno</source_model>
-                <sort_order>450</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </button_badge>
-
-            <heading_dev translate="label">
-                <label>Development</label>
-                <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                <sort_order>500</sort_order>
-                <show_in_default>1</show_in_default>
-                <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
-            </heading_dev>
-
-            <sandbox translate="label">
-              <label>Sandbox Mode</label>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>510</sort_order>
+          <ap_transaction type="group" translate="label">
+              <label>Transaction</label>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
-              <show_in_store>0</show_in_store>
-            </sandbox>
+              <show_in_store>1</show_in_store>
+              <sort_order>30</sort_order>
+              <fields>
+                  <payment_action translate="label">
+                      <label>Payment Action</label>
+                      <frontend_type>select</frontend_type>
+                      <source_model>amazon_payments/system_config_source_paymentaction</source_model>
+                      <sort_order>130</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <config_path>payment/amazon_payments/payment_action</config_path>
+                  </payment_action>
+                  <payment_action_none_note translate="label">
+                      <frontend_type>note</frontend_type>
+                      <comment><![CDATA[You have set orders to not have funds authorized, so you should set the New Order Status below to a custom status other than "Pending" or "Processing." Funds will need to be captured from a third-party system.]]></comment>
+                      <sort_order>135</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <depends><payment_action>new</payment_action></depends>
+                  </payment_action_none_note>
+                  <order_status translate="label">
+                      <label>New Order Status</label>
+                      <frontend_type>select</frontend_type>
+                      <source_model>adminhtml/system_config_source_order_status_newprocessing</source_model>
+                      <sort_order>140</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <config_path>payment/amazon_payments/order_status</config_path>
+                  </order_status>
+                  <store_name translate="label">
+                      <label>Email Store Name</label>
+                      <frontend_type>text</frontend_type>
+                      <comment><![CDATA[Store name to display in Amazon emails. If left blank, current Magento store name will be used.]]></comment>
+                      <sort_order>150</sort_order>
+                      <show_in_default>0</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>1</show_in_store>
+                      <config_path>payment/amazon_payments/store_name</config_path>
+                  </store_name>
 
-            <debug translate="label">
-              <label>Debug Mode</label>
-              <comment>
-                <![CDATA[Save API responses to Magento log]]>
-              </comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>520</sort_order>
+                  <ap_advanced type="group" translate="label">
+                      <label>Advanced Transaction Options</label>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>1</show_in_store>
+                      <sort_order>210</sort_order>
+                      <fields>
+                          <is_async translate="label">
+                              <label>Asynchronous Mode</label>
+                              <comment><![CDATA[In asynchronous mode, the payment is returned as a Pending status instead of an immediate Open or Declined status. Customers will need to be notified of a Declined status.]]></comment>
+                              <frontend_type>select</frontend_type>
+                              <source_model>adminhtml/system_config_source_yesno</source_model>
+                              <sort_order>200</sort_order>
+                              <show_in_default>1</show_in_default>
+                              <show_in_website>1</show_in_website>
+                              <show_in_store>0</show_in_store>
+                              <config_path>payment/amazon_payments/is_async</config_path>
+                          </is_async>
+                      </fields>
+                  </ap_advanced>
+              </fields>
+          </ap_transaction>
+
+          <ap_developer type="group" translate="label">
+              <label>Developer</label>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
-              <show_in_store>0</show_in_store>
-            </debug>
-
-            <restricted_ips translate="label">
-              <label>Restrict by IP</label>
-              <comment>
-                <![CDATA[Display to only whitelisted IPs found in <br>Developer -> Developer Client Restrictions]]>
-              </comment>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>530</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>0</show_in_store>
-            </restricted_ips>
-
+              <show_in_store>1</show_in_store>
+              <sort_order>40</sort_order>
+              <fields>
+                  <secure_cart translate="label">
+                      <label>Secure Cart Page</label>
+                      <comment><![CDATA[HTTPS is required to use the Amazon button on the cart page.]]></comment>
+                      <frontend_type>select</frontend_type>
+                      <source_model>adminhtml/system_config_source_yesno</source_model>
+                      <sort_order>170</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <config_path>payment/amazon_payments/secure_cart</config_path>
+                  </secure_cart>
+                  <debug translate="label">
+                      <label>Debug Mode</label>
+                      <comment>
+                        <![CDATA[Save API responses to Magento log]]>
+                      </comment>
+                      <frontend_type>select</frontend_type>
+                      <source_model>adminhtml/system_config_source_yesno</source_model>
+                      <sort_order>520</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <config_path>payment/amazon_payments/debug</config_path>
+                  </debug>
+                  <restricted_ips translate="label">
+                      <label>Restrict by IP</label>
+                      <comment>
+                        <![CDATA[Display to only whitelisted IPs found in <br>Developer -> Developer Client Restrictions]]>
+                      </comment>
+                      <frontend_type>select</frontend_type>
+                      <source_model>adminhtml/system_config_source_yesno</source_model>
+                      <sort_order>530</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>0</show_in_store>
+                      <config_path>payment/amazon_payments/restricted_ips</config_path>
+                  </restricted_ips>
+              </fields>
+          </ap_developer>
           </fields>
         </amazon_payments>
       </groups>
-
     </payment>
   </sections>
 </config>

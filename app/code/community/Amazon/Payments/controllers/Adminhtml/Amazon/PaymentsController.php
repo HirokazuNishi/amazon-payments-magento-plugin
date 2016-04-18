@@ -37,6 +37,5 @@ class Amazon_Payments_Adminhtml_Amazon_PaymentsController extends Mage_Adminhtml
 
             Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/view", array('order_id' => $orderId)));
         }
-
     }
 }

@@ -39,4 +39,43 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'disable_amazonpaym
     'is_configurable'   => false
 ));
 
+/**
+ * Create amazon_login table
+ */
+$amazon_login_table = $installer->getTable('amazon_payments/login');
+
+if ($installer->getConnection()->isTableExists($amazon_login_table) != true) {
+
+    $amazon_table = $installer->getConnection()
+        ->newTable($installer->getTable('amazon_payments/login'))
+        ->addColumn('login_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
+            'identity' => true,
+            'unsigned' => true,
+            'nullable' => false,
+            'primary'  => true
+        ), 'Login ID')
+        ->addColumn('customer_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array (
+            'nullable' => false,
+            'unsigned' => true
+        ), 'Customer Entity ID')
+        ->addColumn('amazon_uid', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array (
+            'nullable' => true,
+            'unsigned' => true
+        ), 'Amazon User ID')
+        ->addIndex($installer->getIdxName('amazon_payments/login', array('customer_id')), array('customer_id'))
+        ->addIndex($installer->getIdxName('amazon_payments/login', array('amazon_uid')), array('amazon_uid'));
+
+    $installer->getConnection()->createTable($amazon_table);
+
+    $installer->getConnection()->addConstraint(
+        'fk_amazon_login_customer_entity_id',
+        $installer->getTable('amazon_payments/login'),
+        'customer_id',
+        $installer->getTable('customer/entity'),
+        'entity_id',
+        'cascade',
+        'restrict'
+    );
+}
+
 $installer->endSetup();

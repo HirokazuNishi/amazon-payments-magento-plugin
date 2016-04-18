@@ -10,6 +10,18 @@
 
 class Amazon_Payments_Block_Script extends Mage_Core_Block_Template
 {
+    /**
+     * Disable loading Widgets.js for <default> (every page) if cart is empty
+     */
+    protected function _afterToHtml($html)
+    {
+        if ($this->getIsDefault() && Mage::helper('checkout/cart')->getItemsCount() == 0) {
+            return;
+        }
+        else {
+            return $html;
+        }
+    }
 
     /**
      * Return Widgets.js URL
@@ -81,7 +93,7 @@ class Amazon_Payments_Block_Script extends Mage_Core_Block_Template
      */
     public function isPopup()
     {
-        return Mage::helper('amazon_login/data')->isPopup();
+        return Mage::helper('amazon_payments/data')->isPopup();
     }
 
 

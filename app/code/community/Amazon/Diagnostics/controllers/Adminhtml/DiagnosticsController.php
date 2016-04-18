@@ -41,7 +41,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
     }
 
     private function getMagento() {
-        
+
         $this->log("===== MAGENTO =====");
         $this->log("version: ". Mage::getVersion());
         try {
@@ -61,9 +61,9 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
     }
 
     private function getPayments() {
-        
+
         $this->log("\n===== PAYMENT SETTINGS =====");
-        $payments_secret_key = Mage::getStoreConfig('payment/amazon_payments/access_secret');
+        $payments_secret_key = Mage::helper('core')->decrypt(Mage::getStoreConfig('payment/amazon_payments/access_secret'));
         if (strlen($payments_secret_key) > 6) {
             $payments_secret_key = substr($payments_secret_key, 0, 3) . "..." . substr($payments_secret_key, strlen($payments_secret_key - 3), 3);
         }
@@ -82,7 +82,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
         }
 
         $enabled = Mage::getStoreConfig('payment/amazon_payments/enabled') == 1 ? 'yes' : 'no';
-        
+
         $payments_seller_id = "'" . $payments_seller_id . "'";
         if (preg_match('/\s/', $payments_seller_id)) {
             $payments_seller_id .= " ** white space detected **";
@@ -95,14 +95,14 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
         if (preg_match('/\s/', $payments_secret_key)) {
             $payments_secret_key .= "** white space detected **";
         }
-        
+
         $payments_button_on_cart = (Mage::getStoreConfig('payment/amazon_payments/show_pay_cart') == 1 ? 'yes' : 'no');
         $payments_action = Mage::getStoreConfig('payment/amazon_payments/payment_action');
         $payments_secure_cart = (Mage::getSingleton('amazon_payments/config')->isSecureCart() == 1 ? 'yes' : 'no');
         $payments_payment_option = (Mage::getStoreConfig('payment/amazon_payments/use_in_checkout') == 1 ? 'yes' : 'no');
         $payments_async = (Mage::getStoreConfig('payment/amazon_payments/is_async') == 1 ? 'yes' : 'no');
         $payments_sandbox = (Mage::getStoreConfig('payment/amazon_payments/sandbox') == 1 ? 'yes' : 'no');
-        
+
         $this->log("enabled: ". $enabled);
         $this->log("sandbox: ". $payments_sandbox);
         $this->log("seller_id: ". $payments_seller_id);
@@ -117,7 +117,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
     }
 
     private function getLogin() {
-        
+
         $this->log("\n===== LOGIN SETTINGS =====");
         $login_client_id = Mage::getStoreConfig('amazon_login/settings/client_id');
         $login_client_secret = Mage::getStoreConfig('amazon_login/settings/client_secret');
@@ -136,7 +136,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
         if (preg_match('/\s/', $login_client_secret)) {
             $login_client_secret .= "** white space detected **";
         }
-        
+
         $this->log("enabled: ". $login_enabled);
         $this->log("button_type: ". $login_button_type);
         $this->log("popup: ". $login_popup);
@@ -226,7 +226,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
                 /* loop through the files */
                 while (false !== ($entry = readdir($h))) {
 
-                    /* we don't want . and .. 
+                    /* we don't want . and ..
                      * modified to only check exception.log for now. will remove if needed
                      * but it felt extaneous.
                      */
@@ -275,7 +275,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
                         }
 
                         rewind($lh);
-                        
+
                         $cnt = 0; // reset line number
                         $relevant_lines = array();
                         while (($buffer = fgets($lh, 8192)) !== false) {
@@ -292,7 +292,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
                                 $cnt++;
                             }
                         }
-                        
+
                         @fclose($lh);
                     }
                 }
@@ -303,7 +303,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
         }
         @closedir($h);
     }
-    
+
     private function log($s) {
         echo $s ."\n";
     }

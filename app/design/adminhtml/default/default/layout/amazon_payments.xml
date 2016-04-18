@@ -5,4 +5,9 @@
             <block type="amazon_payments/adminhtml_notifications" name="amazon_payments_notifications" template="amazon_payments/notifications.phtml"></block>
         </reference>
     </default>
+    <adminhtml_system_config_edit>
+      	<reference name="head">
+        		<action method="addItem"><type>skin_js</type><name>amazonpayments/amazonpayments.js</name></action>
+      	</reference>
+    </adminhtml_system_config_edit>
 </layout>

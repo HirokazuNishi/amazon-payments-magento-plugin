@@ -56,6 +56,22 @@ class Amazon_Payments_OnepageController extends Amazon_Payments_Controller_Check
                 );
             }
 
+            $data = $this->getRequest()->getPost('billing', array());
+
+            // Save Amasty Customer Attributes
+            if (isset($data['amcustomerattr'])) {
+                Mage::app()->getRequest()->setPost('amcustomerattr', $data['amcustomerattr']);
+                Mage::getSingleton('customer/session')->getCustomer()->save();
+            }
+
+            // Sign Up for Newsletter
+            if ($this->getRequest()->getPost('is_subscribed', false)) {
+                Mage::getSingleton('customer/session')->getCustomer()
+                ->setStoreId(Mage::app()->getStore()->getId())
+                ->setIsSubscribed(true)
+                ->save();
+            }
+
         }
         // Catch any API errors like invalid keys
         catch (Exception $e) {

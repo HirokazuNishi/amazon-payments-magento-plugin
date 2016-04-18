@@ -10,8 +10,12 @@
 <config>
     <modules>
         <Amazon_Payments>
-            <version>1.3.0</version>
+            <version>1.4.0</version>
         </Amazon_Payments>
+        <Amazon_Login>
+            <!-- Disable legacy module -->
+            <active>false</active>
+        </Amazon_Login>
     </modules>
     <global>
         <blocks>
@@ -22,7 +26,16 @@
         <models>
             <amazon_payments>
                 <class>Amazon_Payments_Model</class>
+                <resourceModel>login_mysql4</resourceModel>
             </amazon_payments>
+            <login_mysql4>
+                <class>Amazon_Payments_Model_Resource</class>
+                <entities>
+                    <login>
+                        <table>amazon_login</table>
+                    </login>
+                </entities>
+            </login_mysql4>
             <sales>
                 <rewrite>
                     <order_creditmemo>Amazon_Payments_Model_Order_Creditmemo</order_creditmemo>
@@ -72,6 +85,7 @@
                 <args>
                     <modules>
                         <Amazon_Payments after="Mage_Adminhtml">Amazon_Payments_Adminhtml</Amazon_Payments>
+                        <Amazon_Simplepath after="Mage_Adminhtml">Amazon_Simplepath_Adminhtml</Amazon_Simplepath>
                     </modules>
                 </args>
             </adminhtml>
@@ -116,10 +130,12 @@
     <frontend>
         <secure_url>
             <cart_updatepost>/checkout/cart/updatePost</cart_updatepost>
-            <checkout_amazon>/checkout/amazon_payments</checkout_amazon>
-            <amazon_checkout>/amazon_payments/checkout</amazon_checkout>
             <cart_couponpost>/checkout/cart/couponPost</cart_couponpost>
             <cart_estimatepost>/checkout/cart/estimatePost</cart_estimatepost>
+            <checkout_amazon>/checkout/amazon_payments</checkout_amazon>
+            <amazon_checkout>/amazon_payments/checkout</amazon_checkout>
+            <simplepath>/amazon_payments/simplepath</simplepath>
+            <amazon_login_verify>/amazon_payments/customer/verify</amazon_login_verify>
         </secure_url>
         <routers>
             <amazon_payments>
@@ -184,7 +200,7 @@
     <default>
         <payment>
             <amazon_payments>
-                <title>Amazon Payments</title>
+                <title>Login and Pay with Amazon</title>
                 <model>amazon_payments/paymentMethod</model>
                 <payment_action>authorize_capture</payment_action>
                 <checkout_page>amazon</checkout_page>
@@ -196,8 +212,16 @@
                 <button_color>Gold</button_color>
                 <button_size>medium</button_size>
                 <button_badge>1</button_badge>
+                <popup>1</popup>
+                <access_secret backend_model="adminhtml/system_config_backend_encrypted" />
+                <client_secret backend_model="adminhtml/system_config_backend_encrypted" />
             </amazon_payments>
         </payment>
+        <amazon_login>
+            <settings>
+                <popup>1</popup>
+            </settings>
+        </amazon_login>
     </default>
     <crontab>
         <jobs>

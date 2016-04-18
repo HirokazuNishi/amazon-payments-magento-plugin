@@ -1,0 +1,116 @@
+<?php
+/**
+ * Login with Amazon
+ *
+ * @category    Amazon
+ * @package     Amazon_Payments
+ * @copyright   Copyright (c) 2014 Amazon.com
+ * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
+ */
+?>
+
+<?php
+/**
+ * @see https://images-na.ssl-images-amazon.com/images/G/01/lwa/dev/docs/website-sdk-reference._TTH_.pdf
+ */
+?>
+
+<?php if (!$this->isAmazonPaymentsEnabled() || $this->getNameInLayout() == 'amazon_login.script.logout') : ?>
+
+<div id="amazon-root"></div>
+<script type="text/javascript">
+
+window.onAmazonLoginReady = function() {
+    <?php if ($this->isSandboxEnabled()) : ?>
+    amazon.Login.setSandboxMode(true);
+    <?php endif; ?>
+
+    amazon.Login.setClientId('<?php echo $this->getClientId(); ?>');
+
+    <?php if (!$this->isPopup()) : ?>
+    amazon.Login.setUseCookie(true);
+    <?php endif; ?>
+};
+(function(d) {
+    var a = d.createElement('script'); a.type = 'text/javascript';
+    a.async = true; a.id = 'amazon-login-sdk';
+    a.src = 'https://api-cdn.amazon.com/sdk/login1.js';
+    d.getElementById('amazon-root').appendChild(a);
+})(document);
+
+
+
+function amazonLoginAuthorize() {
+    options = {
+          scope : 'profile postal_code payments:shipping_address<?php print $this->getAdditionalScope(); ?>',
+          response_type: 'token',
+          popup: <?php print $this->isPopup(); ?>
+    };
+
+    <?php if ($this->isPopup()) : ?>
+
+      var responseRedirect = function(response) {
+        if (response.error) {
+            console.log(response.error);
+        }
+        else {
+          document.location.href = "<?php echo $this->getLoginAuthUrl(); ?>?token=" + response.access_token + "&referer=<?php echo Mage::helper('core')->urlEncode($this->helper('core/url')->getCurrentUrl())?>";
+        }
+      }
+
+    <?php else: ?>
+
+        var responseRedirect = "<?php echo $this->getLoginAuthUrl(); ?>";
+
+    <?php endif; ?>
+
+    amazon.Login.authorize(options, responseRedirect);
+}
+
+$$('.amazon-login-button').each(function(el) {
+    el.observe('click', amazonLoginAuthorize);
+})
+
+</script>
+
+
+<?php else : // Amazon Payments is enabled ?>
+
+    <script type='text/javascript'>
+        window.onAmazonLoginReady = function() {
+            amazon.Login.setClientId('<?php echo $this->getClientId(); ?>');
+
+            <?php if (!$this->isPopup()) : ?>
+            amazon.Login.setUseCookie(true);
+            <?php endif; ?>
+
+        };
+
+        <?php if (!$this->isPopup()) : ?>
+        src = '<?php echo $this->getWidgetsUrl(); ?>';
+        <?php endif; ?>
+
+    </script>
+
+    <script type='text/javascript' src='<?php echo $this->getWidgetsUrl(); ?>'></script>
+    <script>jQuery.noConflict();</script>
+
+
+<?php endif; ?>
+
+
+
+<?php if ($this->getNameInLayout() == 'amazon_login.script.logout') : ?>
+
+    <script type="text/javascript">
+    function amazonLogout() {
+        amazon.Login.logout();
+        document.cookie = "amazon_Login_accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+
+    window.onAmazonLoginReady = amazonLogout; // If not loading Widget JS
+    amazonLogout();
+
+    </script>
+
+<?php endif; ?>

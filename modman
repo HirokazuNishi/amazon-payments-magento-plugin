@@ -1,14 +1,10 @@
 app/code/community/Amazon/Diagnostics                               app/code/community/Amazon/Diagnostics
-app/code/community/Amazon/Login                                     app/code/community/Amazon/Login
 app/code/community/Amazon/Payments                                  app/code/community/Amazon/Payments
 app/design/adminhtml/default/default/layout/amazon_payments.xml     app/design/adminhtml/default/default/layout/amazon_payments.xml
 app/design/adminhtml/default/default/template/amazon_payments       app/design/adminhtml/default/default/template/amazon_payments
-app/design/frontend/base/default/layout/amazon_login.xml            app/design/frontend/base/default/layout/amazon_login.xml
 app/design/frontend/base/default/layout/amazon_payments.xml         app/design/frontend/base/default/layout/amazon_payments.xml
-app/design/frontend/base/default/template/amazon_login              app/design/frontend/base/default/template/amazon_login
 app/design/frontend/base/default/template/amazon_payments           app/design/frontend/base/default/template/amazon_payments
 app/etc/modules/Amazon_Diagnostics.xml                              app/etc/modules/Amazon_Diagnostics.xml
-app/etc/modules/Amazon_Login.xml                                    app/etc/modules/Amazon_Login.xml
 app/etc/modules/Amazon_Payments.xml                                 app/etc/modules/Amazon_Payments.xml
 app/locale/en_US/Amazon_Payments.csv                                app/locale/en_US/Amazon_Payments.csv
 app/locale/ja_JP/Amazon_Payments.csv                                app/locale/ja_JP/Amazon_Payments.csv
@@ -18,4 +14,5 @@ lib/MarketplaceWebServiceSellers                                    lib/Marketpl
 lib/OffAmazonPayments                                               lib/OffAmazonPayments
 lib/OffAmazonPaymentsNotifications                                  lib/OffAmazonPaymentsNotifications
 lib/OffAmazonPaymentsService                                        lib/OffAmazonPaymentsService
+skin/adminhtml/default/default/amazonpayments                       skin/adminhtml/default/default/amazonpayments
 skin/frontend/base/default/amazon_payments                          skin/frontend/base/default/amazon_payments

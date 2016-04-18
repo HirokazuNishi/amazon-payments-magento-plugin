@@ -54,7 +54,7 @@ class Amazon_Payments_Block_Button extends Mage_Core_Block_Template
      */
     public function getAdditionalScope()
     {
-         return $this->helper('amazon_login')->getAdditionalScope();
+         return $this->helper('amazon_payments')->getAdditionalScope();
     }
 
     /**
@@ -98,7 +98,7 @@ class Amazon_Payments_Block_Button extends Mage_Core_Block_Template
      */
     public function isAmazonLoginEnabled()
     {
-        return $this->helper('amazon_login')->isEnabled();
+        return $this->helper('amazon_payments')->isEnabled();
     }
 
     /**
@@ -152,7 +152,7 @@ class Amazon_Payments_Block_Button extends Mage_Core_Block_Template
             return 0;
         }
 
-        return ($this->helper('amazon_login')->isPopup());
+        return ($this->helper('amazon_payments')->isPopup());
     }
 
 }

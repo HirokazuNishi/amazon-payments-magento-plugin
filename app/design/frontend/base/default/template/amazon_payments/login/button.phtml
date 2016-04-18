@@ -1,0 +1,65 @@
+<?php
+/**
+ * Login with Amazon
+ *
+ * @category    Amazon
+ * @package     Amazon_Payments
+ * @copyright   Copyright (c) 2014 Amazon.com
+ * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
+ */
+?>
+
+<div id="amazon-buttons-wrapper" class="col2-set">
+    <div class="col-1">
+        <div class="amazon-login-button-wrapper">
+
+            <?php if ($this->getNameInLayout() == 'amazon_login.button_login') : ?>
+            <strong class="amazon-or">- <?php echo $this->__('OR'); ?> -</strong>
+            <br />
+            <?php endif; ?>
+
+            <?php if (!$this->isAmazonPaymentsEnabled()) : // Old embed method (does not require seller id) ?>
+
+                <button class="amazon-login-button" style="cursor:pointer; background:none; border:0;">
+                  <img src="<?php echo $this->getButtonImage(); ?>" alt="Login with Amazon" border="0" />
+                </button>
+
+            <?php else : // Use Amazon Payments embed method ?>
+
+                <div id="amazon-login-button"></div>
+
+                <script type="text/javascript">
+                  var authRequest;
+
+                  var AmazonButtonOptions = {
+                      type: "<?php echo $this->getButtonType(); ?>",
+                      color: "<?php echo $this->getButtonColor(); ?>",
+                      size: "<?php echo $this->getButtonSize(); ?>",
+                      authorization: function() {
+                          loginOptions = {
+                              scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
+                              response_type: 'token',
+                              popup: <?php print $this->isPopup(); ?>
+                          };
+
+                          authRequest = amazon.Login.authorize (loginOptions, "<?php echo (!$this->isPopup()) ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
+                      },
+                      onError: function(error) {
+                          console.log(error);
+                      }
+                  };
+
+                  OffAmazonPayments.Button("amazon-login-button", "<?php echo $this->getSellerId(); ?>", AmazonButtonOptions);
+
+                </script>
+
+            <?php endif; ?>
+
+            <?php if ($this->getNameInLayout() == 'amazon_login.button_create') : ?>
+            <strong class="amazon-or">- <?php echo $this->__('OR'); ?> -</strong>
+            <br />
+            <?php endif; ?>
+
+        </div>
+    </div>
+</div>

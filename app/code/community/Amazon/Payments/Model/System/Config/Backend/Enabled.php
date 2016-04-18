@@ -16,11 +16,11 @@ class Amazon_Payments_Model_System_Config_Backend_Enabled extends Mage_Core_Mode
     public function save()
     {
 
-        $data = $this->getFieldsetData();
+        $data = $this->_getCredentials();
         $isEnabled = $this->getValue();
 
         if ($isEnabled) {
-            if ($data['seller_id'] && !ctype_alnum($data['seller_id'])) {
+            if ($data['seller_id']['value'] && !ctype_alnum($data['seller_id']['value'])) {
                 Mage::getSingleton('core/session')->addError('Error: Please verify your Seller ID (alphanumeric characters only).');
             }
         }
@@ -32,10 +32,11 @@ class Amazon_Payments_Model_System_Config_Backend_Enabled extends Mage_Core_Mode
      */
     public function _afterSaveCommit()
     {
-        $data = $this->getFieldsetData();
+        $data = $this->_getCredentials();
         $isEnabled = $this->getValue();
 
-        if ($isEnabled) {
+        if ($isEnabled && $data['access_key']['value']) {
+            $access_secret = $data['access_secret']['value'];
             $region = Mage::getStoreConfig('payment/amazon_payments/region');
             if($region == 'jp') {
                 $serviceURL = "https://mws.amazonservices.jp/Sellers/2011-07-01";
@@ -52,14 +53,14 @@ class Amazon_Payments_Model_System_Config_Backend_Enabled extends Mage_Core_Mode
                 'MaxErrorRetry' => 3,
             );
             $service = new MarketplaceWebServiceSellers_Client(
-                $data['access_key'],
-                $data['access_secret'],
+                $data['access_key']['value'],
+                $access_secret,
                 'Login and Pay for Magento',
                 '1.3',
                 $config);
 
             $request = new MarketplaceWebServiceSellers_Model_ListMarketplaceParticipationsRequest();
-            $request->setSellerId($data['seller_id']);
+            $request->setSellerId($data['seller_id']['value']);
             try {
                 $service->ListMarketplaceParticipations($request);
                 Mage::getSingleton('core/session')->addSuccess("All of your Amazon API keys are correct!");
@@ -90,12 +91,37 @@ class Amazon_Payments_Model_System_Config_Backend_Enabled extends Mage_Core_Mode
 
     /**
      * Return dynamic help/comment text
-     *
      */
     public function getCommentText(Mage_Core_Model_Config_Element $element, $currentValue)
     {
         $version = Mage::getConfig()->getModuleConfig("Amazon_Payments")->version;
-        return "v$version";
+
+        // @see Amazon_Payments_Model_SimplePath->saveToConfig()
+        $enabledMessage = Mage::getSingleton('adminhtml/session')->getEnableMessage();
+        if ($enabledMessage) {
+            $enabledMessage = '<div style="color:red">' . $enabledMessage . '</div>';
+            Mage::getSingleton('adminhtml/session')->unsEnableMessage();
+        }
+
+        // SimplePath
+        return "v$version
+
+        $enabledMessage
+
+        <!-- SimplePath -->
+        <script>
+          var AmazonSp = " . Zend_Json::encode(Mage::getSingleton('amazon_payments/simplePath')->getJsonAmazonSpConfig()) . ";
+        </script>
+        ";
+    }
+
+    /**
+     * Return credentials
+     */
+    private function _getCredentials()
+    {
+        $groups = $this->getData('groups');
+        return $groups['ap_credentials']['fields'];
     }
 
 }

@@ -247,7 +247,7 @@
     -->
     <amazon_payments_checkout_authorize translate="label">
         <reference name="content">
-            <block type="amazon_login/script" name="amazon_login.script.authorize" template="amazon_login/script_authorize.phtml" />
+            <block type="amazon_payments/login_script" name="amazon_login.script.authorize" template="amazon_payments/login/script_authorize.phtml" />
         </reference>
     </amazon_payments_checkout_authorize>
 
@@ -259,9 +259,18 @@
 
         <block type="amazon_payments/button" name="addtocart-amazon-button" template="amazon_payments/button_shortcut.phtml" />
 
+        <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+        <reference name="head">
+            <action method="append" ifconfig="payment/amazon_payments/visible_on_product">
+                <block>amazon_payments.script</block>
+            </action>
+        </reference>
+
+        <!--
         <reference name="head">
             <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
         </reference>
+        -->
 
         <reference name="product.info.addtocart">
             <action method="append" ifconfig="payment/amazon_payments/visible_on_product">
@@ -281,7 +290,9 @@
     -->
     <default>
         <reference name="head">
-            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml">
+                <action method="setIsDefault"><is_default>1</is_default></action>
+            </block>
         </reference>
         <reference name="cart_sidebar.extra_actions">
             <block type="amazon_payments/button" name="AmazonPayButtonSideCart" template="amazon_payments/button.phtml"/>
@@ -371,9 +382,78 @@
         </reference>
         <reference name="my.account.wrapper">
             <block type="amazon_payments/sales_view" template="amazon_payments/sales/order/amazon_wallet.phtml" before="info">
-                <block type="amazon_login/button" name="amazon_login.no-or" template="amazon_login/button.phtml"/>
+                <block type="amazon_payments/login_button" name="amazon_login.no-or" template="amazon_payments/login/button.phtml"/>
             </block>
         </reference>
     </sales_order_view>
+
+
+    <!--
+    Login
+    -->
+    <customer_account_login translate="label">
+
+        <block type="amazon_payments/login_script" name="amazon_login.script" template="amazon_payments/login/script.phtml" />
+        <block type="amazon_payments/login_button" name="amazon_login.button_login" template="amazon_payments/login/button.phtml" after="customer_form_login" />
+
+        <!-- ifconfig only works with action -->
+        <reference name="after_body_start">
+            <action method="append" ifconfig="payment/amazon_payments/enabled">
+                <block>amazon_login.script</block>
+            </action>
+        </reference>
+
+        <reference name="content">
+            <action method="append" ifconfig="payment/amazon_payments/enabled">
+                <block>amazon_login.button_login</block>
+            </action>
+        </reference>
+    </customer_account_login>
+
+    <customer_account_create translate="label">
+        <block type="amazon_payments/login_script" name="amazon_login.script" template="amazon_payments/login/script.phtml" />
+        <block type="amazon_payments/login_button" name="amazon_login.button_create" template="amazon_payments/login/button.phtml" after="customer_form_login" />
+
+        <reference name="after_body_start">
+            <action method="append" ifconfig="payment/amazon_payments/enabled">
+                <block>amazon_login.script</block>
+            </action>
+        </reference>
+
+        <reference name="customer.form.register.fields.before">
+            <action method="append" ifconfig="payment/amazon_payments/enabled">
+                <block>amazon_login.button_create</block>
+            </action>
+        </reference>
+    </customer_account_create>
+
+
+    <customer_account_logoutsuccess>
+        <reference name="content">
+            <block type="amazon_payments/login_script" name="amazon_login.script.logout" template="amazon_payments/login/script.phtml" />
+        </reference>
+    </customer_account_logoutsuccess>
+
+    <amazon_payments_customer_verify translate="label">
+        <label>Login with Amazon</label>
+        <remove name="right"/>
+        <remove name="left"/>
+
+        <reference name="content">
+
+            <block type="core/messages" name="global_messages" as="global_messages"/>
+            <block type="core/messages" name="messages" as="messages"/>
+
+            <block type="amazon_payments/login_verify" name="amazon_login.verify" template="amazon_payments/login/verify.phtml">
+
+            </block>
+        </reference>
+   </amazon_payments_customer_verify>
+
+   <amazon_payments_customer_authorize translate="label">
+        <reference name="content">
+            <block type="amazon_payments/login_script" name="amazon_login.script.authorize" template="amazon_payments/login/script_authorize.phtml" />
+        </reference>
+   </amazon_payments_customer_authorize>
 
 </layout>
