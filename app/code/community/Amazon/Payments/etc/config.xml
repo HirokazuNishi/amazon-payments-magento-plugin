@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Amazon_Payments>
-            <version>1.4.0</version>
+            <version>1.4.1</version>
         </Amazon_Payments>
         <Amazon_Login>
             <!-- Disable legacy module -->
@@ -99,6 +99,15 @@
                 </tax>
             </updates>
         </layout>
+        <translate>
+            <modules>
+                <Amazon_Payments>
+                    <files>
+                        <default>Amazon_Payments.csv</default>
+                    </files>
+                </Amazon_Payments>
+            </modules>
+        </translate>
         <events>
             <adminhtml_widget_container_html_before>
                 <observers>
@@ -146,6 +155,15 @@
                 </args>
             </amazon_payments>
         </routers>
+        <translate>
+            <modules>
+                <Amazon_Payments>
+                    <files>
+                        <default>Amazon_Payments.csv</default>
+                    </files>
+                </Amazon_Payments>
+            </modules>
+        </translate>        
         <layout>
             <updates>
                 <amazon_payments>
@@ -207,6 +225,7 @@
                 <show_pay_cart>1</show_pay_cart>
                 <order_status>processing</order_status>
                 <active>1</active>
+                <region>us</region>
                 <secure_cart>1</secure_cart>
                 <button_type>PwA</button_type>
                 <button_color>Gold</button_color>

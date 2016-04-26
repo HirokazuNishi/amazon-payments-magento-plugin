@@ -970,6 +970,12 @@ class OffAmazonPaymentsService_Client implements OffAmazonPaymentsService_Interf
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
+        if (defined('CURLOPT_IPRESOLVE'))
+        {
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+        }
+
+
         # if a ca bundle is configured, use it as opposed to the default ca
         # configured for the server
         if (!is_null($this->_merchantValues->getCaBundleFile())) {

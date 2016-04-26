@@ -62,8 +62,11 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
 
     private function getPayments() {
 
+
+        $_config = Mage::getSingleton('amazon_payments/config');
+
         $this->log("\n===== PAYMENT SETTINGS =====");
-        $payments_secret_key = Mage::helper('core')->decrypt(Mage::getStoreConfig('payment/amazon_payments/access_secret'));
+        $payments_secret_key = Mage::getStoreConfig('payment/amazon_payments/access_secret');
         if (strlen($payments_secret_key) > 6) {
             $payments_secret_key = substr($payments_secret_key, 0, 3) . "..." . substr($payments_secret_key, strlen($payments_secret_key - 3), 3);
         }
@@ -102,6 +105,8 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
         $payments_payment_option = (Mage::getStoreConfig('payment/amazon_payments/use_in_checkout') == 1 ? 'yes' : 'no');
         $payments_async = (Mage::getStoreConfig('payment/amazon_payments/is_async') == 1 ? 'yes' : 'no');
         $payments_sandbox = (Mage::getStoreConfig('payment/amazon_payments/sandbox') == 1 ? 'yes' : 'no');
+        $region = $_config->getRegion();
+        $locale = Mage::getStoreConfig('general/country/default');
 
         $this->log("enabled: ". $enabled);
         $this->log("sandbox: ". $payments_sandbox);
@@ -114,6 +119,8 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
         $this->log("secure_cart: ". $payments_secure_cart);
         $this->log("payment_option: ". $payments_payment_option);
         $this->log("async: ". $payments_async);
+        $this->log("api region: ". $region);
+        $this->log("locale: ". $locale);
     }
 
     private function getLogin() {

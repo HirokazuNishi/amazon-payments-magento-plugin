@@ -1,0 +1,9 @@
+"Login with Amazon", "Accedi con Amazon"
+"The Amazon MWS Access Key is incorrect", "La chiave di accesso di Amazon MWS non &egrave; corretta"
+"Unable to log in with Amazon", "Impossibile accedere con Amazon"
+"OR", "O"
+"Verify Your Account", "Verifica il tuo account"
+#adminhtml,
+"Default is Country Locale. Override with a value from ""<a href=""https://payments.amazon.co.uk/developer/documentation/lpwa/201749840#201749950"" target=""_blank"" class=""amzn-doc-link"">ENTER_LANGUAGE_PARAMETER</a>.", "Il valore predefinito &egrave; la lingua locale del paese. Puoi sostituirlo con un valore selezionato in ""<a href=""https://payments.amazon.co.uk/developer/documentation/lpwa/201749840#201749950"" target=""_blank"" class=""amzn-doc-link"">ENTER_LANGUAGE_PARAMETER</a>."
+"Additional Access Scope", "Ambito di accesso aggiuntivo"
+"Optional access scope strings during login.", "Stringhe di ambito di accesso opzionale durante l'accesso."

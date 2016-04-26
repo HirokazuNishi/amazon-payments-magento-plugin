@@ -275,7 +275,7 @@ class Amazon_Payments_Model_SimplePath
             //'spUrl'         => Mage::helper("adminhtml")->getUrl('adminhtml/amazon_simplepath/spurl'),
             'importUrl'     => Mage::helper('adminhtml')->getUrl('adminhtml/amazon_simplepath/import'),
             'isSecure'      => (int) (Mage::app()->getFrontController()->getRequest()->isSecure()),
-            'isUsa'         => (int) (Mage::helper('amazon_payments')->getAdminConfig('general/country/default') == 'US'),
+            'isUsa'         => (int) (Mage::helper('amazon_payments')->getAdminConfig('general/country/default') == 'US' && Mage::helper('amazon_payments')->getAdminRegion() != 'eu'),
             'hasOpenssl'    => (int) (extension_loaded('openssl')),
             'formParams'    => $this->getFormParams(),
         );

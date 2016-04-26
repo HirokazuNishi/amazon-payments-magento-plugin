@@ -35,11 +35,11 @@ class Amazon_Payments_OrderController extends Mage_Core_Controller_Front_Action
                 // Re-authorize
                 Mage::getModel('amazon_payments/async')->syncOrderStatus($order, true);
 
-                Mage::getSingleton('core/session')->addSuccess('Thank you for updating your payment method.');
+                Mage::getSingleton('core/session')->addSuccess(Mage::helper('checkout')->__('Thank you for updating your payment method.'));
 
             }
             catch (Exception $e) {
-                Mage::getSingleton('core/session')->addError('Please try another payment method.');
+                Mage::getSingleton('core/session')->addError(Mage::helper('checkout')->__('Please try another payment method.'));
                 Mage::logException($e);
             }
         }

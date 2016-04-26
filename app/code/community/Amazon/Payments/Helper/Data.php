@@ -240,6 +240,69 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Return API region
+     */
+    public function getRegion()
+    {
+        $region = $this->getConfig()->getRegion();
+        return ($region) ? $region : 'us';
+    }
+
+    /**
+     * Return language for Amazon frontend
+     */
+    public function getLanguage()
+    {
+
+        if ($language = $this->getConfig()->getLanguage()) {
+            return $language;
+        }
+
+        $code = Mage::getStoreConfig('general/locale/code');
+
+        if ($code == 'en_GB') {
+            return 'en-GB';
+        }
+
+        switch (substr($code, 0, 2)) {
+            case 'de': return 'de-DE'; break;
+            case 'fr': return 'fr-FR'; break;
+            case 'it': return 'it-IT'; break;
+            case 'es': return 'es-ES'; break;
+            default: return false;
+        }
+    }
+
+    /**
+     * Get admin region for localizing URLs to Amazon
+     */
+    public function getAdminRegion()
+    {
+        $config = $this->getConfig();
+
+        if (in_array($this->getAdminConfig($config::CONFIG_XML_PATH_REGION), array('uk', 'de'))) {
+            return 'eu';
+        }
+
+        $countryCode = $this->getAdminConfig('general/country/default');
+
+        // Is EU country?
+        $euCountries = explode(',', Mage::getStoreConfig('general/country/eu_countries'));
+        if (in_array($countryCode, $euCountries)) {
+            return 'eu';
+        }
+    }
+
+    /**
+     * Is admin set to DE?
+     */
+    public function isAdminGermany()
+    {
+        $config = $this->getConfig();
+        return $this->getAdminConfig($config::CONFIG_XML_PATH_REGION) == 'de' || substr($this->getAdminConfig('general/country/default'), 0, 2) == 'DE';
+    }
+
+    /**
      * Get config by website or store admin scope
      */
     public function getAdminConfig($path)
@@ -253,6 +316,62 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
         else {
             return Mage::getStoreConfig($path);
         }
+    }
+
+    /**
+     * Transform an Amazon address into a standard Magento address
+     *
+     * @param OffAmazonPaymentsService_Model_Address amazonAddress
+     */
+    public function transformAmazonAddressToMagentoAddress($amazonAddress) {
+        $name = $amazonAddress->getName();
+        $name      = mb_convert_kana($name, 's', 'utf-8');
+        $names = preg_split('/\s/', $name);
+        if(count($names) == 2) {
+            $firstName = $names[0];
+            $lastName = $names[1];
+        } else {
+            $firstName = $names[0];
+            $lastName = '　';
+        }
+        $firstName = substr($name, 0, strrpos($name, ' '));
+        $lastName  = substr($name, strlen($firstName) + 1);
+
+        $data['firstname'] = $firstName;
+        $data['lastname'] = $lastName;
+        $data['country_id'] = $amazonAddress->getCountryCode();
+        $data['city'] = $amazonAddress->getCity();
+        $data['postcode'] = $amazonAddress->getPostalCode();
+        $data['telephone'] = $amazonAddress->getPhone() ? $amazonAddress->getPhone() : $this->__('-');
+
+        $data['street'] = array();
+
+        $countryCode = $amazonAddress->getCountryCode();
+        $addressLine1 = $amazonAddress->getAddressLine1();
+        $addressLine2 = $amazonAddress->getAddressLine2();
+        $addressLine3 = $amazonAddress->getAddressLine3();
+        if($countryCode && in_array($countryCode, array('AT', 'DE'))){
+            if ($addressLine3) {
+                $data['company'] = trim($addressLine1.' '.$addressLine2);
+                $data['street'][] = $addressLine3;
+            } else if ($addressLine2) {
+                $data['company'] = $addressLine1;
+                $data['street'][] = $addressLine2;
+            } else {
+                $data['street'][] = $addressLine1;
+            }
+        } else {
+            if ($addressLine1) {
+                $data['street'][] = $addressLine1;
+            }
+            if ($addressLine2) {
+                $data['street'][] = $addressLine2;
+            }
+            if ($addressLine3) {
+                $data['street'][] = $addressLine3;
+            }
+        }
+        return $data;
     }
 
     /**

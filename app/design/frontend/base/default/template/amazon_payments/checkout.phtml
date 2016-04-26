@@ -59,13 +59,13 @@
 
                 <?php if ($this->helper('amazon_payments')->isAmazonSandbox()) : ?>
                 <br />
-                <h3>Authorization Sandbox Simulation:</h3>
+                <h3><?php echo $this->__('Authorization Sandbox Simulation:'); ?></h3>
                 <textarea id="sandbox"></textarea>
-                Example:
+                <?php echo $this->__('Example:') ?>
                 <small>
                  	{"SandboxSimulation": {"State":"Declined", "ReasonCode":"InvalidPaymentMethod"}}
                   <br />
-                  (<a href="https://payments.amazon.com/documentation/lpwa/201749840#201750790" target="_blank">More Info</a>)<br />
+                  (<a href="https://payments.amazon.com/documentation/lpwa/201749840#201750790" target="_blank"><?php echo $this->__('More Info') ?></a>)<br />
                 </small>
 
 
@@ -92,18 +92,19 @@ AmazonPaymentsMageCheckout.prototype = {
         this.opts = opts;
         this.hasPayment = false;
         this.hasReviewLoader = false;
-        //this.setShippingMethod();
+        this.hasHiddenShippingMethod = false;
     },
 
-    // Dynamically load shipping method HTML
-    setShippingMethod: function() {
+    // Dynamically load shipping method and review HTML
+    // (Widget callback)
+    setAddress: function() {
         if (this.opts.shippingMethod) {
             this.restrictPlaceOrder(true);
 
-            var request = new Ajax.Request(this.opts.shippingMethod.url, {
+            var request = new Ajax.Request(this.opts.addressSelect.url, {
                 method: 'post',
                 parameters: { "amazon_order_reference_id": this.amazonOrderReferenceId },
-                onSuccess: this.renderShippingMethod.bindAsEventListener(this, this.opts.shippingMethod.id)
+                onSuccess: this.onSaveAddress.bindAsEventListener(this)
             });
         }
         else {
@@ -111,10 +112,38 @@ AmazonPaymentsMageCheckout.prototype = {
         }
     },
 
+    // Render shipping method and review at same time
+    onSaveAddress: function(transport) {
+        try{
+            response = eval('(' + transport.responseText + ')');
+        }
+        catch (e) {
+            response = {};
+        }
+
+        if (response.review) {
+            transport.hasReview = true;
+            transport.responseText = response.shipping_method;
+            this.renderShippingMethod(transport, this.opts.shippingMethod.id);
+
+            transport.responseText = response.review;
+            this.renderReview(transport, this.opts.review.id);
+        }
+    },
+
+    // Set additional options (e.g. gift message or EE gift wrapping)
+    setAdditional: function(parameters) {
+        this.restrictPlaceOrder(true);
+
+        var request = new Ajax.Request(this.opts.additional.url, {
+            method: 'post',
+            parameters: parameters,
+            onSuccess: this.renderReview.bindAsEventListener(this, this.opts.review.id)
+        });
+    },
+
     // Dynamically load review HTML
     setReview: function() {
-        var btnSubmit = $$(".button.btn-checkout");
-
         var shippingMethod = $$('input:checked[type=radio][name=shipping_method]')[0];
 
         if (shippingMethod != undefined) {
@@ -141,44 +170,63 @@ AmazonPaymentsMageCheckout.prototype = {
     renderShippingMethod: function(transport, id) {
         $(id).update(transport.responseText);
 
-        $$('input[type="radio"][name="shipping_method"]').each(function(el){
-            Event.observe(el, 'change', this.setReview.bindAsEventListener(this));
-       }, this);
+        var elShippingMethods = $$('input[type="radio"][name="shipping_method"]');
 
-       this.setReview();
+        elShippingMethods.each(function(el){
+            Event.observe(el, 'change', this.setReview.bindAsEventListener(this));
+        }, this);
+
+
+        // Set shipping method if only one available and hidden
+        if (elShippingMethods.length == 1 && !this.hasHiddenShippingMethod) {
+            this.hasHiddenShippingMethod = true;
+            this.setReview();
+        }
+
+        if (!transport.hasReview) {
+            this.setReview();
+        }
+
     },
 
     renderReview: function(transport, id) {
         $(id).update(transport.responseText);
-        $$(".button.btn-checkout").invoke('writeAttribute','onclick', 'amazonPaymentsMageCheckout.saveOrder()');
+
+        var btnSubmit = $$(".button.btn-checkout");
+
+        if (!btnSubmit.length) {
+            btnSubmit = $$('button[onclick*="review.save()"]');
+        }
+
+        btnSubmit.invoke('writeAttribute','onclick', 'amazonPaymentsMageCheckout.saveOrder()');
         this.agreementsForm = $('checkout-agreements')
         $("amz-review-loader").hide();
         this.restrictPlaceOrder(false);
     },
 
     saveOrder: function() {
-      var params = {};
+        var params = {};
 
-      if (this.agreementsForm) {
-          params += '&'+Form.serialize(this.agreementsForm);
-      }
-      params.save = true;
+        if (this.agreementsForm) {
+            params += '&'+Form.serialize(this.agreementsForm);
+        }
+        params.save = true;
 
-      params.amazon_order_reference_id = this.amazonOrderReferenceId;
+        params.amazon_order_reference_id = this.amazonOrderReferenceId;
 
-      var sandbox = $('sandbox');
-      if (sandbox) {
-          params.sandbox = sandbox.getValue();
-      }
+        var sandbox = $('sandbox');
+        if (sandbox) {
+            params.sandbox = sandbox.getValue();
+        }
 
-      this.restrictPlaceOrder(true);
-      this.restrictWidgets(true);
+        this.restrictPlaceOrder(true);
+        this.restrictWidgets(true);
 
-      var request = new Ajax.Request(this.opts.save.url, {
-          method: 'post',
-          parameters: params,
-          onSuccess: this.onSaveOrder.bindAsEventListener(this)
-      });
+        var request = new Ajax.Request(this.opts.save.url, {
+            method: 'post',
+            parameters: params,
+            onSuccess: this.onSaveOrder.bindAsEventListener(this)
+        });
     },
 
     onSaveOrder: function(transport) {
@@ -303,9 +351,15 @@ var opts = {
       url: "<?php echo $this->getUrl('checkout/amazon_payments/shippingMethod') ?>"
   },
   <?php endif; ?>
+  additional : {
+      url: "<?php echo $this->getUrl('checkout/amazon_payments/additional') ?>"
+  },
   review : {
       id: "checkout-review-load",
       url: "<?php echo $this->getUrl('checkout/amazon_payments/review') ?>"
+  },
+  addressSelect : {
+      url: "<?php echo $this->getUrl('checkout/amazon_payments/addressSelect') ?>"
   },
   save : {
       url: "<?php echo $this->getUrl('checkout/amazon_payments/saveOrder') ?>"
@@ -334,6 +388,42 @@ var restrictInterval = setInterval(function() {
         }
     }
 }, 100);
+
+// Additional form elements such as Gift Options
+document.observe('dom:loaded', function(){
+    var addEls = $('checkout-shipping-method-additional-load').select('input', 'select', 'textarea');
+
+    addEls.each(function(elChange) {
+      //console.log(el);
+
+        Event.observe(elChange, 'change', function() {
+            var params = {};
+
+            addEls.each(function(el) {
+                if (el.type == "checkbox") {
+                    if (el.checked) {
+                        params[el.name] = el.value;
+                    }
+                }
+                else if (el.options && (typeof params[el.name] == "undefined" || !params[el.name])) {
+
+                    params[el.name] = el.options[el.selectedIndex].value;
+
+                }
+                else if (!params[el.name]) {
+                    params[el.name] = el.value;
+                }
+            });
+            console.log(params);
+
+            //var value = el.value;
+
+            amazonPaymentsMageCheckout.setAdditional(params)
+
+        });
+    });
+});
+
 </script>
 
 
@@ -346,7 +436,7 @@ new OffAmazonPayments.Widgets.AddressBook({
       amazonPaymentsMageCheckout.amazonOrderReferenceId = orderReference.getAmazonOrderReferenceId();
   },
   onAddressSelect: function(orderReference) {
-      amazonPaymentsMageCheckout.setShippingMethod();
+      amazonPaymentsMageCheckout.setAddress();
       amazonPaymentsMageCheckout.hasPayment = false;
   },
   design: {

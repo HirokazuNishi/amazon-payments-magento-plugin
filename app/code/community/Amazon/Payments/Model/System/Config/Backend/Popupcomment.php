@@ -17,7 +17,19 @@ class Amazon_Payments_Model_System_Config_Backend_Popupcomment extends Mage_Core
     public function getCommentText(Mage_Core_Model_Config_Element $element, $currentValue)
     {
 
-        $replace_cleanup = array('index.php/', ':80', ':443');
+        $replace_cleanup = array(':80', ':443');
+
+        if (in_array('mod_rewrite', apache_get_modules())) {
+            $replace_cleanup[] = 'index.php/';
+        }
+
+        // Website level
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) {
+            $website_id = Mage::getModel('core/website')->load($code)->getId();
+            $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+        } else {
+            $store_id = 1;
+        }
 
         return '
         <div style="border:1px solid #ccc; color:#666; padding:8px; margin-top:0.5em; font-size:90%">

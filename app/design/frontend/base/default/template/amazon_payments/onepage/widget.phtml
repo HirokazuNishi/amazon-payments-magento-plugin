@@ -19,13 +19,13 @@
 
     <?php if ($this->isShowShip()) : ?>
     <div id="amazon-widget-address-wrapper" class="amazon-widget-wrapper">
-        <h3>Shipping Information</h3>
+        <h3><?php echo $this->__('Shipping Information') ?></h3>
         <div id="amazon-widget-address"></div>
     </div>
     <?php endif; ?>
 
     <div id="amazon-widget-wallet-wrapper" class="amazon-widget-wrapper">
-        <h3>Payment Information</h3>
+        <h3><?php echo $this->__('Payment Information') ?></h3>
         <div id="amazon-widget-wallet"></div>
     </div>
 
@@ -80,7 +80,7 @@ AmazonWidgetStep.prototype = {
 
     validate: function() {
         if (!$(this.form)["amazon_order_reference_id"].value) {
-           alert("Amazon Order Reference ID required. Please try again.");
+           alert(Translator.translate('Amazon Order Reference ID required. Please try again.'));
            return false;
         }
 

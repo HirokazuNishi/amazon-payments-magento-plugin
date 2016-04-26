@@ -1,12 +1,12 @@
 <?php
 /*******************************************************************************
  * Copyright 2009-2014 Amazon Services. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * Licensed under the Apache License, Version 2.0 (the "License");
  *
- * You may not use this file except in compliance with the License. 
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at: http://aws.amazon.com/apache2.0
- * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+ * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *******************************************************************************
  * PHP Version 5
@@ -99,7 +99,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
 
     /**
      * List Marketplace Participations
-     * Returns a list of marketplaces that the seller submitting the request can sell in, 
+     * Returns a list of marketplaces that the seller submitting the request can sell in,
      *         and a list of participations that include seller-specific information in that marketplace.
      *
      * @param mixed $request array of parameters for MarketplaceWebServiceSellers_Model_ListMarketplaceParticipations request or MarketplaceWebServiceSellers_Model_ListMarketplaceParticipations object itself
@@ -143,7 +143,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
 
     /**
      * List Marketplace Participations By Next Token
-     * Returns the next page of marketplaces and participations using the NextToken value 
+     * Returns the next page of marketplaces and participations using the NextToken value
      *         that was returned by your previous request to either ListMarketplaceParticipations or
      *         ListMarketplaceParticipationsByNextToken.
      *
@@ -211,9 +211,15 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
      */
     public function __construct($awsAccessKeyId, $awsSecretAccessKey, $applicationName, $applicationVersion, $config = null)
     {
-        iconv_set_encoding('output_encoding', 'UTF-8');
-        iconv_set_encoding('input_encoding', 'UTF-8');
-        iconv_set_encoding('internal_encoding', 'UTF-8');
+        if (PHP_VERSION_ID < 50600) {
+            iconv_set_encoding('output_encoding', 'UTF-8');
+            iconv_set_encoding('input_encoding', 'UTF-8');
+            iconv_set_encoding('internal_encoding', 'UTF-8');
+        } else {
+            ini_set('output_encoding', 'UTF-8');
+            ini_set('input_encoding', 'UTF-8');
+            ini_set('default_charset', 'UTF-8');
+        }
 
         $this->_awsAccessKeyId = $awsAccessKeyId;
         $this->_awsSecretAccessKey = $awsSecretAccessKey;
@@ -230,7 +236,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
             $attributes = array ();
         }
 
-        $this->_config['UserAgent'] = 
+        $this->_config['UserAgent'] =
             $this->constructUserAgentHeader($applicationName, $applicationVersion, $attributes);
     }
 
@@ -243,7 +249,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
             throw new InvalidArgumentException('$applicationVersion cannot be null');
         }
 
-        $userAgent = 
+        $userAgent =
             $this->quoteApplicationName($applicationName)
             . '/'
             . $this->quoteApplicationVersion($applicationVersion);
@@ -450,7 +456,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $allHeadersStr);
-        curl_setopt($ch, CURLOPT_HEADER, true); 
+        curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         if ($config['ProxyHost'] != null && $config['ProxyPort'] != -1)
         {
@@ -475,11 +481,11 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
         curl_close($ch);
         return $this->_extractHeadersAndBody($response);
     }
-    
+
     /**
      * This method will attempt to extract the headers and body of our response.
      * We need to split the raw response string by 2 'CRLF's.  2 'CRLF's should indicate the separation of the response header
-     * from the response body.  However in our case we have some circumstances (certain client proxies) that result in 
+     * from the response body.  However in our case we have some circumstances (certain client proxies) that result in
      * multiple responses concatenated.  We could encounter a response like
      *
      * HTTP/1.1 100 Continue
@@ -499,22 +505,22 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
         //First split by 2 'CRLF'
         $responseComponents = preg_split("/(?:\r?\n){2}/", $response);
         $body = null;
-        for ($count = 0; 
-                $count < count($responseComponents) && $body == null; 
+        for ($count = 0;
+                $count < count($responseComponents) && $body == null;
                 $count++) {
-            
+
             $headers = $responseComponents[$count];
             $responseStatus = $this->_extractHttpStatusCode($headers);
-            
-            if($responseStatus != null && 
+
+            if($responseStatus != null &&
                     $this->_httpHeadersHaveContent($headers)){
-                
+
                 $responseHeaderMetadata = $this->_extractResponseHeaderMetadata($headers);
                 //The body will be the next item in the responseComponents array
                 $body = $responseComponents[++$count];
             }
         }
-        
+
         //If the body is null here then we were unable to parse the response and will throw an exception
         if($body == null){
             $exProps["Message"] = "Failed to parse valid HTTP response (" . $response . ")";
@@ -523,11 +529,11 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
         }
 
         return array(
-                'Status' => $responseStatus, 
-                'ResponseBody' => $body, 
+                'Status' => $responseStatus,
+                'ResponseBody' => $body,
                 'ResponseHeaderMetadata' => $responseHeaderMetadata);
     }
-    
+
     /**
      * parse the status line of a header string for the proper format and
      * return the status code
@@ -537,14 +543,14 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
      * returns String statusCode or null if the status line can't be parsed
      */
     private function _extractHttpStatusCode($headers){
-    	$statusCode = null; 
+    	$statusCode = null;
         if (1 === preg_match("/(\\S+) +(\\d+) +([^\n\r]+)(?:\r?\n|\r)/", $headers, $matches)) {
         	//The matches array [entireMatchString, protocol, statusCode, the rest]
-            $statusCode = $matches[2]; 
+            $statusCode = $matches[2];
         }
         return $statusCode;
     }
-    
+
     /**
      * Tries to determine some valid headers indicating this response
      * has content.  In this case
@@ -554,7 +560,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
         return (1 === preg_match("/[cC]ontent-[lL]ength: +(?:\\d+)(?:\\r?\\n|\\r|$)/", $headers) ||
                 1 === preg_match("/Transfer-Encoding: +(?!identity[\r\n;= ])(?:[^\r\n]+)(?:\r?\n|\r|$)/i", $headers));
     }
-    
+
     /**
     *  extract a ResponseHeaderMetadata object from the raw headers
     */
@@ -579,7 +585,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
                 }
             }
         }
- 
+
         return new MarketplaceWebServiceSellers_Model_ResponseHeaderMetadata(
           $headers['x-mws-request-id'],
           $headers['x-mws-response-context'],
@@ -609,7 +615,7 @@ class MarketplaceWebServiceSellers_Client implements MarketplaceWebServiceSeller
             $delay = (int) (pow(4, $retries) * 100000);
             usleep($delay);
             return true;
-        } 
+        }
         return false;
     }
 

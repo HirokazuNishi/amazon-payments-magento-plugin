@@ -26,6 +26,7 @@ window.onAmazonLoginReady = function() {
     <?php endif; ?>
 
     amazon.Login.setClientId('<?php echo $this->getClientId(); ?>');
+    amazon.Login.setRegion('<?php echo $this->getRegion(); ?>');
 
     <?php if (!$this->isPopup()) : ?>
     amazon.Login.setUseCookie(true);
@@ -33,7 +34,8 @@ window.onAmazonLoginReady = function() {
 };
 (function(d) {
     var a = d.createElement('script'); a.type = 'text/javascript';
-    a.async = true; a.id = 'amazon-login-sdk';
+    a.async = true;
+    a.id = 'amazon-login-sdk';
     a.src = 'https://api-cdn.amazon.com/sdk/login1.js';
     d.getElementById('amazon-root').appendChild(a);
 })(document);
@@ -44,6 +46,9 @@ function amazonLoginAuthorize() {
     options = {
           scope : 'profile postal_code payments:shipping_address<?php print $this->getAdditionalScope(); ?>',
           response_type: 'token',
+          <?php if ($this->getLanguage()) : ?>
+          language: "<?php echo $this->getLanguage(); ?>",
+          <?php endif; ?>
           popup: <?php print $this->isPopup(); ?>
     };
 

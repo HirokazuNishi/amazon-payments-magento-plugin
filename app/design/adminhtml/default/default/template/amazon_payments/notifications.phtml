@@ -15,7 +15,7 @@
 
 <div class="notification-global">
     <strong>
-        To complete your Amazon Payments configuration, please set up <a href="https://sellercentral.amazon.com/" taget="_blank">your account</a> and add the API credentials <a href="<?php echo $this->getManageUrl(); ?>">here</a>.
+        <?php echo $this->__('To complete your Amazon Payments configuration, please set up <a href="https://sellercentral.amazon.com/" taget="_blank">your account</a> and add the API credentials <a href="%s">here</a>.', $this->getManageUrl()); ?>
     </strong>
     <span class="f-right"></span>
 </div>
@@ -27,7 +27,7 @@
 
 <div class="notification-global">
     <strong>
-        Amazon Payments requires a <a href="https://github.com/amzn/amazon-payments-magento-plugin/wiki/Magento-1.5-Compatibility" target="_blank">patched Payments.php</a> file for Magento 1.5 compatibility.
+        <?php echo $this->__('Amazon Payments requires a <a href="https://github.com/amzn/amazon-payments-magento-plugin/wiki/Magento-1.5-Compatibility" target="_blank">patched Payments.php</a> file for Magento 1.5 compatibility.'); ?>
     </strong>
     <span class="f-right"></span>
 </div>

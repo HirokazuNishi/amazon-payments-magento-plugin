@@ -113,6 +113,11 @@ class Amazon_Payments_Model_Customer extends Mage_Customer_Model_Customer
                 ->save()
                 ->sendNewAccountEmail('registered', '', Mage::app()->getStore()->getId());
 
+            // If email confirmation required, must resave customer
+            if ($this->isConfirmationRequired()) {
+                $this->setConfirmation(null)->save();
+            }
+
             $this->createAssociation($amazonProfile, $this->getId());
 
         }

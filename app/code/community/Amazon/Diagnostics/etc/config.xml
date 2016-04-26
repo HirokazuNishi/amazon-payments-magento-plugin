@@ -36,4 +36,15 @@
             </adminhtml>
         </routers>
     </admin>
+    <adminhtml>
+        <translate>
+            <modules>
+                <Amazon_Diagnostics>
+                    <files>
+                        <default>Amazon_Diagnostics.csv</default>
+                    </files>
+                </Amazon_Diagnostics>
+            </modules>
+        </translate>
+    </adminhtml>
 </config>

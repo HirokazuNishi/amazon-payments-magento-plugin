@@ -19,6 +19,9 @@
       type: "<?php echo ($this->isAmazonLoginEnabled()) ? 'LwA' : $this->getButtonType(); ?>",
       color: "<?php echo $this->getButtonColor(); ?>",
       size: "<?php echo $this->getButtonSize(); ?>",
+      <?php if ($this->getLanguage()) : ?>
+      language: "<?php echo $this->getLanguage(); ?>",
+      <?php endif; ?>
       authorization: function() {
           loginOptions = {
               scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",

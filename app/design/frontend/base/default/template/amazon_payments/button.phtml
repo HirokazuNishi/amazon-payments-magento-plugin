@@ -11,7 +11,7 @@
 ?>
 <?php if ($this->isAmazonPayButtonEnabled()): ?>
 
-  <div id="<?php echo $this->getAmazonPayButtonId(); ?>" class="amazon-pay-button" style="float:right;margin-bottom:10px;"></div>
+  <div id="<?php echo $this->getAmazonPayButtonId(); ?>" class="amazon-pay-button" style="display:inline-block;margin:0 auto 10px;text-align:center;"></div>
 
   <script type="text/javascript">
     var authRequest;
@@ -20,6 +20,9 @@
         type: "<?php echo $this->getButtonType(); ?>",
         color: "<?php echo $this->getButtonColor(); ?>",
         size: "<?php echo $this->getButtonSize(); ?>",
+        <?php if ($this->getLanguage()) : ?>
+        language: "<?php echo $this->getLanguage(); ?>",
+        <?php endif; ?>
         authorization: function() {
             loginOptions = {
                 scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",

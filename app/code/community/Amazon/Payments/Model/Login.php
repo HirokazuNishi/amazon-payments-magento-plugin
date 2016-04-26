@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 /**
  * Access Amazon's API
@@ -17,6 +18,7 @@ class Amazon_Payments_Model_Login extends Mage_Core_Model_Abstract
 
     protected function _construct()
     {
+        parent::_construct();
         $this->_init('amazon_payments/login');
     }
     /**
@@ -46,20 +48,36 @@ class Amazon_Payments_Model_Login extends Mage_Core_Model_Abstract
      */
     public function request($path, array $postParams = array())
     {
-        $sandbox = (Mage::getStoreConfig('payment/amazon_payments/sandbox')) ? 'sandbox.' : '';
-        $region = Mage::getStoreConfig('payment/amazon_payments/region');
+        $config = Mage::getSingleton('amazon_payments/config');
+
+        $sandbox = $config->isSandbox() ? 'sandbox.' : '';
+
+        switch (Mage::helper('amazon_payments')->getRegion()) {
+            case 'uk':
+                $tld = 'co.uk';
+                break;
+            case 'de':
+                $tld = 'de';
+                break;
+            case 'jp':
+                $tld = 'co.jp';
+                break;
+            default:
+                $tld = 'com';
+                break;
+        }
+
         $client = new Zend_Http_Client();
-        if($region == 'jp') {
+        if(Mage::helper('amazon_payments')->getRegion() == 'jp') {
             if($sandbox) {
                 $sandbox = '-'. $sandbox;
             } else {
                 $sandbox = '.';
             }
-            $client->setUri("https://api{$sandbox}amazon.co.jp/$path");
+            $client->setUri("https://api{$sandbox}amazon.$tld/$path");
         } else {
-            $client->setUri("https://api.{$sandbox}amazon.com/$path");
+            $client->setUri("https://api.{$sandbox}amazon.$tld/$path");
         }
-
         $client->setConfig($this->http_client_config);
         $client->setMethod($postParams ? 'POST' : 'GET');
 

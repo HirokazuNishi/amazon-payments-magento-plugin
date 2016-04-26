@@ -102,6 +102,28 @@ class Amazon_Payments_Block_Login_Script extends Mage_Core_Block_Template
     }
 
     /**
+     * Get region
+     */
+    public function getRegion()
+    {
+        switch ($this->helper('amazon_payments')->getRegion()) {
+            case 'uk':
+            case 'de':
+                return 'EU';
+            default:
+                return 'NA'; // North America
+        }
+    }
+
+    /**
+     * Get language
+     */
+    public function getLanguage()
+    {
+        return Mage::getStoreConfig('payment/amazon_payments/language');
+    }
+
+    /**
      * Is Amazon Payments enabled?
      *
      * @return bool

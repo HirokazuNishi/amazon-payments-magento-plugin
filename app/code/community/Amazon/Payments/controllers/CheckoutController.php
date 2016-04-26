@@ -43,6 +43,14 @@ class Amazon_Payments_CheckoutController extends Amazon_Payments_Controller_Chec
             $this->getLayout()->getBlock('root')->setTemplate('page/popup.phtml');
         }
 
+        // Add EE gift wrapping options
+        if (Mage::helper('core')->isModuleEnabled('Enterprise_GiftWrapping')) {
+            $block = $this->getLayout()
+                ->createBlock('enterprise_giftwrapping/checkout_options', 'checkout.options')
+                ->setTemplate('giftwrapping/checkout/options.phtml');
+            $this->getLayout()->getBlock('content')->append($block);
+        }
+
         $this->getLayout()->getBlock('head')->setTitle($this->__('Checkout'));
         $this->renderLayout();
     }
@@ -109,6 +117,26 @@ class Amazon_Payments_CheckoutController extends Amazon_Payments_Controller_Chec
     }
 
     /**
+     * Widget Address select action
+     */
+    public function addressSelectAction()
+    {
+        if ($this->_expireAjax()) {
+            return;
+        }
+
+        $this->_saveShipping();
+        $this->_getCheckout()->getQuote()->collectTotals()->save();
+
+        $result = array(
+            'shipping_method' => $this->_getBlockHtml('checkout_amazon_payments_shippingmethod'),
+            'review'          => $this->_getBlockHtml('checkout_amazon_payments_review'),
+        );
+
+        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+    }
+
+    /**
      * Shipping method action
      */
     public function shippingMethodAction()
@@ -122,6 +150,30 @@ class Amazon_Payments_CheckoutController extends Amazon_Payments_Controller_Chec
         $this->loadLayout(false);
         $this->renderLayout();
     }
+
+    /**
+     * Additional options action (e.g. gift options)
+     */
+    public function additionalAction()
+    {
+        if ($this->_expireAjax()) {
+            return;
+        }
+
+        if ($this->getRequest()->isPost()) {
+            Mage::dispatchEvent(
+                'checkout_controller_onepage_save_shipping_method',
+                array(
+                    'request' => $this->getRequest(),
+                    'quote'   => $this->_getCheckout()->getQuote()));
+
+            $this->_getCheckout()->getQuote()->collectTotals()->save();
+
+        }
+
+        $this->getResponse()->setBody($this->_getBlockHtml('checkout_amazon_payments_review'));
+    }
+
 
     /**
      * Review page action
@@ -218,6 +270,17 @@ class Amazon_Payments_CheckoutController extends Amazon_Payments_Controller_Chec
                     return;
                 }
             }
+
+            // Validate shipping method
+            if (!$this->_getCheckout()->getQuote()->isVirtual()) {
+                $address = $this->_getCheckout()->getQuote()->getShippingAddress();
+                $method  = $address->getShippingMethod();
+                $rate    = $address->getShippingRateByCode($method);
+                if (!$this->_getCheckout()->getQuote()->isVirtual() && (!$method || !$rate)) {
+                    Mage::throwException(Mage::helper('sales')->__('Please specify a shipping method.'));
+                }
+            }
+
 
             $additional_information = array(
                 'order_reference' => $this->getAmazonOrderReferenceId()
@@ -321,6 +384,24 @@ class Amazon_Payments_CheckoutController extends Amazon_Payments_Controller_Chec
     protected function _getReviewHtml()
     {
         return $this->getLayout()->getBlock('root')->toHtml();
+    }
+
+    /**
+     * Render block HTML
+     *
+     * @string $node block name
+     */
+    protected function _getBlockHtml($node)
+    {
+        $cache = Mage::app()->getCacheInstance();
+        $cache->banUse('layout');
+
+        $layout = $this->getLayout();
+        $update = $layout->getUpdate();
+        $update->load($node);
+        $layout->generateXml();
+        $layout->generateBlocks();
+        return $layout->getOutput();
     }
 
 }

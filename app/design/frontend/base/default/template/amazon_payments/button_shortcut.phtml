@@ -20,6 +20,9 @@
         type: "<?php echo $this->getButtonType(); ?>",
         color: "<?php echo $this->getButtonColor(); ?>",
         size: "<?php echo $this->getButtonSize(); ?>",
+        <?php if ($this->getLanguage()) : ?>
+        language: "<?php echo $this->getLanguage(); ?>",
+        <?php endif; ?>
         authorization: function() {
             loginOptions = {
                 scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
@@ -45,8 +48,12 @@
 
     var productAddToCartFormAmazon =  new VarienForm('product_addtocart_form');
 
-    productAddToCartFormAmazon.submit = function(button) {
+    productAddToCartFormAmazon.submit = function(e) {
         if (this.validator.validate()) {
+
+            OffAmazonPayments.jQuery("#<?php echo $this->getAmazonPayButtonId(); ?> img")
+                .css("opacity", "0.5").css("cursor", "progress");
+
             var form = this.form;
             var url = form.action;
 

@@ -28,6 +28,12 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
     {
         parent::preDispatch();
 
+        // User clicked "Cancel" on Amazon Login consent form
+        if ($this->getRequest()->getParam('error') == 'access_denied') {
+            $this->_redirect('checkout/cart');
+            return;
+        }
+
         $this->_amazonOrderReferenceId = htmlentities($this->getRequest()->getParam('amazon_order_reference_id'));
 
         if (!$this->_amazonOrderReferenceId) {
@@ -207,107 +213,36 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
             $address = $orderReferenceDetails->getDestination()->getPhysicalDestination();
 
             // Split name into first/last
-            $name      = mb_convert_kana($address->getName(), 's', 'utf-8');
-            $names = preg_split('/\s/', $name);
-            if(count($names) == 2) {
-                $firstName = $names[0];
-                $lastName = $names[1];
-            } else {
-                $firstName = $names[0];
-                $lastName = '　';
-            }
-            //$lastName  = substr($name, strlen($firstName) + 1);
-
-            $city = $address->getCity();
-            $address1 = $address->getAddressLine1();
-            $address2 = $address->getAddressLine2();
-
-            if(!$city) {
-                $city = $address->getAddressLine1();
-                $address1 = ($address2 == '') ? '　' : $address2;
-                $address2 = '';
-            }
 
             // Find Mage state/region ID
             $regionModel = Mage::getModel('directory/region')->loadByCode($address->getStateOrRegion(), $address->getCountryCode());
             $regionId    = $regionModel->getId();
-            if(!$regionId) {
-                $regionCollection = Mage::getResourceModel('directory/region_collection')->addCountryFilter($address->getCountryCode());
-                foreach($regionCollection as $region) {
-                    if($region->getName() == $address->getStateOrRegion()) {
-                        $regionId = $region->getId();
-                    }
-                }
+
+            // Load region ID by name
+            if (!$regionId) {
+                $regionModel = Mage::getModel('directory/region')->loadByName($address->getStateOrRegion(), $address->getCountryCode());
+                $regionId    = $regionModel->getId();
             }
 
-            $data = array(
-                'firstname'   => $firstName,
-                'lastname'    => ($lastName != '') ? $lastName : '　',
-                'street'      => array($address1, $address2),
-                'city'        => $city,
-                'region'      => $address->getStateOrRegion(),
-                'region_id'   => $regionId,
-                'postcode'    => $address->getPostalCode(),
-                'country_id'  => $address->getCountryCode(),
-                'telephone'   => ($address->getPhone()) ? $address->getPhone() : '-', // Mage requires phone number
-                'use_for_shipping' => true,
-            );
+            $data = Mage::helper('amazon_payments')->transformAmazonAddressToMagentoAddress($address);
+            $data['use_for_shipping'] = true;
+            $data['region'] = $address->getStateOrRegion();
+            $data['region_id'] = $regionId;
 
             if ($email = Mage::getSingleton('checkout/session')->getCustomerEmail()) {
                 $data['email'] = $email;
             }
 
-
             // Set billing address (if allowed by scope)
             if ($orderReferenceDetails->getBillingAddress()) {
                 $billing = $orderReferenceDetails->getBillingAddress()->getPhysicalAddress();
-                //$data['use_for_shipping'] = false;
 
-                $name      = mb_convert_kana($billing->getName(), 's', 'utf-8');
-                $names = preg_split('/^(.*)\s(.*)$/', $name);
-                if(count($names) == 2) {
-                    $firstName = $names[0];
-                    $lastName = $names[1];
-                } else {
-                    $firstName = $names[0];
-                    $lastName = '　';
-                }
-                //$lastName  = substr($name, strlen($firstName) + 1);
-
-                $city = $billing->getCity();
-                $address1 = $billing->getAddressLine1();
-                $address2 = $billing->getAddressLine2();
-
-                if(!$city) {
-                    $city = $billing->getAddressLine1();
-                    $address1 = ($address2 == '') ? '　' : $address2;
-                    $address2 = '';
-                }
-
-                // Find Mage state/region ID
                 $regionModel = Mage::getModel('directory/region')->loadByCode($billing->getStateOrRegion(), $billing->getCountryCode());
                 $regionId    = $regionModel->getId();
-                if(!$regionId) {
-                    $regionCollection = Mage::getResourceModel('directory/region_collection')->addCountryFilter($billing->getCountryCode());
-                    foreach($regionCollection as $region) {
-                        if($region->getName() == $billing->getStateOrRegion()) {
-                            $regionId = $region->getId();
-                        }
-                    }
-                }
-
-                $dataBilling = array(
-                    'firstname'   => $firstName,
-                    'lastname'    => ($lastName != '') ? $lastName : '.',
-                    'street'      => array($address1, $address2),
-                    'city'        => $city,
-                    'region'      => $billing->getStateOrRegion(),
-                    'region_id'   => $regionId,
-                    'postcode'    => $billing->getPostalCode(),
-                    'country_id'  => $billing->getCountryCode(),
-                    'telephone'   => ($billing->getPhone()) ? $billing->getPhone() : '-',
-                    'use_for_shipping' => false,
-                );
+                $dataBilling = Mage::helper('amazon_payments')->transformAmazonAddressToMagentoAddress($billing);
+                $dataBilling['use_for_shipping'] = false;
+                $dataBilling['region'] = $billing->getStateOrRegion();
+                $dataBilling['region_id'] = $regionId;
 
                 $this->_getCheckout()->saveBilling($dataBilling, null);
 
@@ -319,6 +254,5 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
             return $this->_getCheckout()->saveShipping($data);
         }
     }
-
 }
 

@@ -20,7 +20,6 @@ class Amazon_Payments_Model_Config
     const CONFIG_XML_PATH_SELLER_ID      = 'payment/amazon_payments/seller_id';
     const CONFIG_XML_PATH_ACCESS_KEY     = 'payment/amazon_payments/access_key';
     const CONFIG_XML_PATH_ACCESS_SECRET  = 'payment/amazon_payments/access_secret';
-    const CONFIG_XML_PATH_REGION         = 'payment/amazon_payments/region';
     const CONFIG_XML_PATH_SANDBOX        = 'payment/amazon_payments/sandbox';
     const CONFIG_XML_PATH_DEBUG          = 'payment/amazon_payments/debug';
     const CONFIG_XML_PATH_CHECKOUT_PAGE  = 'payment/amazon_payments/checkout_page';
@@ -28,6 +27,7 @@ class Amazon_Payments_Model_Config
     const CONFIG_XML_PATH_ORDER_STATUS   = 'payment/amazon_payments/order_status';
     const CONFIG_XML_PATH_SHOW_PAY_CART  = 'payment/amazon_payments/show_pay_cart';
     const CONFIG_XML_PATH_STORE_NAME     = 'payment/amazon_payments/store_name';
+    const CONFIG_XML_PATH_SOFT_DESC      = 'payment/amazon_payments/soft_descriptor';
     const CONFIG_XML_PATH_SECURE_CART    = 'payment/amazon_payments/secure_cart';
     const CONFIG_XML_PATH_IS_ASYNC       = 'payment/amazon_payments/is_async';
     const CONFIG_XML_PATH_RESTRICTED_IPS = 'payment/amazon_payments/restricted_ips';
@@ -36,6 +36,9 @@ class Amazon_Payments_Model_Config
     const CONFIG_XML_PATH_BUTTON_COLOR   = 'payment/amazon_payments/button_color';
     const CONFIG_XML_PATH_BUTTON_SIZE    = 'payment/amazon_payments/button_size';
     const CONFIG_XML_PATH_BUTTON_BADGE   = 'payment/amazon_payments/button_badge';
+
+    const CONFIG_XML_PATH_REGION         = 'amazon_login/settings/region';
+    const CONFIG_XML_PATH_LANGUAGE       = 'amazon_login/settings/language';
 
     /**
      * Retrieve config value for store by path
@@ -171,6 +174,17 @@ class Amazon_Payments_Model_Config
     }
 
     /**
+     * Get language UI
+     *
+     * @param   store $store
+     * @return  string
+     */
+    public function getLanguage($store = null)
+    {
+        return trim($this->_getStoreConfig(self::CONFIG_XML_PATH_LANGUAGE, $store));
+    }
+
+    /**
      * Get Checkout Page type
      *
      * @param   store $store
@@ -218,6 +232,22 @@ class Amazon_Payments_Model_Config
         else {
             return Mage::app()->getStore()->getName();
         }
+    }
+
+    /**
+     * Get customzied soft descriptor, if used
+     *
+     * @param   store $store
+     * @return  string
+     */
+    public function getSoftDesc($store = null)
+    {
+        $softDesc = $this->_getStoreConfig(self::CONFIG_XML_PATH_SOFT_DESC, $store);
+        if (!$softDesc) {
+            $softDesc = Mage::app()->getStore()->getName();
+        }
+
+        return substr($softDesc, 0, 16); // 16 chars max
     }
 
     /**
@@ -318,5 +348,7 @@ class Amazon_Payments_Model_Config
     {
         return ($this->_getStoreConfig(self::CONFIG_XML_PATH_BUTTON_BADGE, $store));
     }
+
+
 
 }

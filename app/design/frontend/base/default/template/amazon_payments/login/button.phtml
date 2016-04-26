@@ -21,7 +21,7 @@
             <?php if (!$this->isAmazonPaymentsEnabled()) : // Old embed method (does not require seller id) ?>
 
                 <button class="amazon-login-button" style="cursor:pointer; background:none; border:0;">
-                  <img src="<?php echo $this->getButtonImage(); ?>" alt="Login with Amazon" border="0" />
+                  <img src="<?php echo $this->getButtonImage(); ?>" alt="<?php echo $this->__('Login with Amazon'); ?>" border="0" />
                 </button>
 
             <?php else : // Use Amazon Payments embed method ?>
@@ -35,6 +35,9 @@
                       type: "<?php echo $this->getButtonType(); ?>",
                       color: "<?php echo $this->getButtonColor(); ?>",
                       size: "<?php echo $this->getButtonSize(); ?>",
+                      <?php if ($this->getLanguage()) : ?>
+                      language: "<?php echo $this->getLanguage(); ?>",
+                      <?php endif; ?>
                       authorization: function() {
                           loginOptions = {
                               scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",

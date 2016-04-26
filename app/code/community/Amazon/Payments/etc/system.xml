@@ -25,10 +25,8 @@
 
             <comment>
             <![CDATA[
-                    Login and Pay with Amazon helps you increase conversation, reduce fraud, acquire new customers and build loyalty.  <a href="https://payments.amazon.com/" target="_blank">Learn More.</a>
+                    Login and Pay with Amazon helps you increase conversation, reduce fraud, acquire new customers and build loyalty.  <a href="https://payments.amazon.com/" target="_blank" class="amzn-signup">Learn More.</a>
                     <br /><br />
-
-
                     <div id="amazon_simplepath">
                         <span style="display:inline-block;padding-bottom:1em;">
                             <button><span>Get started with account registration</span></button>
@@ -55,19 +53,16 @@
 
                       <strong>Steps to Launch Login and Pay with Amazon</strong>
                       <ol style="list-style:inside decimal;">
-                        <li>Register through our custom <a href="https://sellercentral.amazon.com/hz/me/sp/signup?solutionProviderOptions=lwa%3Bmws-acc%3B&marketplaceId=AGWSWK15IEJJ7&solutionProviderToken=AAAAAQAAAAEAAAAQCz2wulRfR9nOADyzVQrq5wAAAHAIIULh6RBNvlw68WY5S9ATlmInlyg2PLVF44yUVowkyjvDZPhtLf3UYn6fshHlKqwR4qptfBeltbxLtLrrIfK6JoxzuWe9FRTnCfSey8a0sFKuL3mwNenjLyMC9BAN1xU0S6pebxA2mz8t8Y1v5Axi&solutionProviderId=A2K7HE1S3M5XJ" target="_blank">Magento registration</a> or visit <a href="https://payments.amazon.com/signup" target="_blank">https://payments.amazon.com/signup</a>
+                        <li>Register through our custom <a href="https://sellercentral.amazon.com/hz/me/sp/signup?solutionProviderOptions=lwa%3Bmws-acc%3B&marketplaceId=AGWSWK15IEJJ7&solutionProviderToken=AAAAAQAAAAEAAAAQCz2wulRfR9nOADyzVQrq5wAAAHAIIULh6RBNvlw68WY5S9ATlmInlyg2PLVF44yUVowkyjvDZPhtLf3UYn6fshHlKqwR4qptfBeltbxLtLrrIfK6JoxzuWe9FRTnCfSey8a0sFKuL3mwNenjLyMC9BAN1xU0S6pebxA2mz8t8Y1v5Axi&solutionProviderId=A2K7HE1S3M5XJ" target="_blank" class="amzn-link">Magento registration</a> <span class="amzn-us-signup">or visit <a href="https://payments.amazon.com/signup" target="_blank" class="amzn-link">https://payments.amazon.com/signup</a></span>
                         <!--
                         Register or login to retrieve your account keys: &nbsp<button onclick="javascript:window.open(&#39;&#39;, &#39;get_keys&#39,&#39;left=50, top=50, width=950, height=750&#39;); return false;" class="scalable" type="button"><span>Login to Get Your Keys</span></button></span></button>
                         -->
 
 
-                        <li>Visit <a href="https://sellercentral.amazon.com/" target="_blank">Amazon Seller Central</a>  and Configure OAuth "Allowed Javascript Origins" in your Login with Amazon settings.
+                        <li>Visit <a href="https://sellercentral.amazon.com/" target="_blank" class="amzn-link">Amazon Seller Central</a>  and Configure OAuth "Allowed Javascript Origins" in your Login with Amazon settings.
                         <li>Under General->Web, enable "Use Secure URLs in Frontend." (HTTPS is required.)
                       </ol>
                     </div>
-
-
-
                     <div style="clear:both;"></div>
             ]]>
             </comment>
@@ -92,11 +87,11 @@
                 <label>Credentials</label>
                 <show_in_default>1</show_in_default>
                 <show_in_website>1</show_in_website>
+                <show_in_store>1</show_in_store>
                 <expanded>1</expanded>
                 <frontend_model>adminhtml/system_config_form_fieldset</frontend_model>
                 <sort_order>10</sort_order>
                 <fields>
-
                     <simplepath_import_button>
                         <frontend_type>button</frontend_type>
                         <frontend_model>amazon_payments/adminhtml_system_config_simplepathimport</frontend_model>
@@ -121,7 +116,7 @@
                         <sort_order>15</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
-                        <show_in_store>0</show_in_store>
+                        <show_in_store>1</show_in_store>
                         <config_path>payment/amazon_payments/seller_id</config_path>
                     </seller_id>
                     <access_key translate="label">
@@ -130,7 +125,7 @@
                         <sort_order>20</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
-                        <show_in_store>0</show_in_store>
+                        <show_in_store>1</show_in_store>
                         <config_path>payment/amazon_payments/access_key</config_path>
                     </access_key>
                     <access_secret translate="label">
@@ -139,7 +134,7 @@
                         <sort_order>30</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
-                        <show_in_store>0</show_in_store>
+                        <show_in_store>1</show_in_store>
                         <config_path>payment/amazon_payments/access_secret</config_path>
                         <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                     </access_secret>
@@ -149,7 +144,7 @@
                         <sort_order>31</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
-                        <show_in_store>0</show_in_store>
+                        <show_in_store>1</show_in_store>
                         <config_path>payment/amazon_payments/client_id</config_path>
                     </client_id>
                     <client_secret translate="label">
@@ -158,11 +153,10 @@
                         <sort_order>32</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
-                        <show_in_store>0</show_in_store>
+                        <show_in_store>1</show_in_store>
                         <config_path>payment/amazon_payments/client_secret</config_path>
                         <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                     </client_secret>
-
                     <sandbox translate="label">
                       <label>Sandbox Mode</label>
                       <frontend_type>select</frontend_type>
@@ -170,23 +164,43 @@
                       <sort_order>510</sort_order>
                       <show_in_default>1</show_in_default>
                       <show_in_website>1</show_in_website>
-                      <show_in_store>0</show_in_store>
+                      <show_in_store>1</show_in_store>
                       <config_path>payment/amazon_payments/sandbox</config_path>
                     </sandbox>
-
+                </fields>
+            </ap_credentials>
+            <!-- BEGIN EU REGION -->
+            <ap_region type="group" translate="label">
+                <label>Region</label>
+                <show_in_default>1</show_in_default>
+                <show_in_website>1</show_in_website>
+                <frontend_model>adminhtml/system_config_form_fieldset</frontend_model>
+                <sort_order>15</sort_order>
+                <fields>
                     <region translate="label">
-                        <label>API Region</label>
+                        <label>Region</label>
                         <frontend_type>select</frontend_type>
                         <source_model>amazon_payments/system_config_source_region</source_model>
-                        <sort_order>35</sort_order>
+                        <comment><model>amazon_payments/system_config_backend_localizecomment</model></comment>
+                        <sort_order>10</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
                         <show_in_store>1</show_in_store>
-                        <config_path>payment/amazon_payments/region</config_path>
+                        <config_path>amazon_login/settings/region</config_path>
                     </region>
-
+                    <!--language translate="label">
+                        <label>Language</label>
+                        <comment><![CDATA[You can chanage the language of the button and widgets here. The default language is your store's locale. EX: US = 'en_US'. More information can be found <a href="https://payments.amazon.co.uk/developer/documentation/lpwa/201749840#201749950" target="_blank" class="amzn-doc-link">here</a>.]]></comment>
+                        <frontend_type>text</frontend_type>
+                        <sort_order>20</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <config_path>amazon_login/settings/language</config_path>
+                    </language-->
                 </fields>
-            </ap_credentials>
+            </ap_region>
+            <!-- END EU REGION -->
 
             <ap_checkout type="group" translate="label">
                 <label>Checkout Style</label>
@@ -385,11 +399,22 @@
                       <frontend_type>text</frontend_type>
                       <comment><![CDATA[Store name to display in Amazon emails. If left blank, current Magento store name will be used.]]></comment>
                       <sort_order>150</sort_order>
-                      <show_in_default>0</show_in_default>
+                      <show_in_default>1</show_in_default>
                       <show_in_website>1</show_in_website>
                       <show_in_store>1</show_in_store>
                       <config_path>payment/amazon_payments/store_name</config_path>
                   </store_name>
+                  <soft_descriptor translate="label">
+                      <label>Soft Descriptor</label>
+                      <frontend_type>text</frontend_type>
+                      <comment><![CDATA[Billing descriptor to display on credit card statements. Limited to 16 characters. If left blank, current Magento store name will be used.]]></comment>
+                      <validate>validate-length maximum-length-16</validate>
+                      <sort_order>160</sort_order>
+                      <show_in_default>1</show_in_default>
+                      <show_in_website>1</show_in_website>
+                      <show_in_store>1</show_in_store>
+                      <config_path>payment/amazon_payments/soft_descriptor</config_path>
+                  </soft_descriptor>
 
                   <ap_advanced type="group" translate="label">
                       <label>Advanced Transaction Options</label>
