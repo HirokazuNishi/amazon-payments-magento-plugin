@@ -19,7 +19,7 @@ class Amazon_Payments_Model_System_Config_Backend_Popupcomment extends Mage_Core
 
         $replace_cleanup = array(':80', ':443');
 
-        if (in_array('mod_rewrite', apache_get_modules())) {
+        if (function_exists('apache_get_modules') && in_array('mod_rewrite', apache_get_modules())) {
             $replace_cleanup[] = 'index.php/';
         }
 
