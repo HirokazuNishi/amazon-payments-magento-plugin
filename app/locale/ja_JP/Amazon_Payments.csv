@@ -110,7 +110,7 @@
 "Results:","結果:"
 "Sandbox Mode","サンドボックスモード"
 "Secure Cart Page","カートページでSSLを使用"
-"Seller/Merchant ID","セラー/マーチャント ID"
+"SellerId/MerchantId","セラー/マーチャント ID"
 "Settings","設定"
 "Shortcut on Product View","商品ページにショートカットを表示"
 "Show Pay with Amazon Button on Cart","ショッピングカートにペイ with Amazonボタンを表示"
@@ -202,3 +202,4 @@
                                  ]]>","<![CDATA[
                                                                        Copy/paste results to developer support if requested.
                                                                        ]]>"
+"Credentials","認証情報"
