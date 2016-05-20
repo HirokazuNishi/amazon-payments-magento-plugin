@@ -67,7 +67,7 @@ class Amazon_Payments_Model_System_Config_Backend_Enabled extends Mage_Core_Mode
      */
     public function getMwsSellerApiUrl()
     {
-        $region = Mage::getStoreConfig('payment/amazon_payments/region');
+        $region = Mage::getStoreConfig('amazon_login/settings/region');
         switch ($region) {
           case 'uk':
               $tld = 'co.uk';
