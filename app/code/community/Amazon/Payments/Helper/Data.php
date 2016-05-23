@@ -327,15 +327,27 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
         $name = $amazonAddress->getName();
         $name      = mb_convert_kana($name, 's', 'utf-8');
         $names = preg_split('/\s/', $name);
-        if(count($names) == 2) {
-            $firstName = $names[0];
-            $lastName = $names[1];
+
+        if(Mage::app()->getLocale()->getLocaleCode() == 'ja_JP'){
+            if(count($names) == 2) {
+                $firstName = $names[1];
+                $lastName = $names[0];
+            } else {
+                $firstName = '　';
+                $lastName = $names[0];
+            }
         } else {
-            $firstName = $names[0];
-            $lastName = '　';
+            if(count($names) == 2) {
+                $firstName = $names[0];
+                $lastName = $names[1];
+            } else {
+                $firstName = $names[0];
+                $lastName = '　';
+            }
         }
-        $firstName = substr($name, 0, strrpos($name, ' '));
-        $lastName  = substr($name, strlen($firstName) + 1);
+
+//        $firstName = substr($name, 0, strrpos($name, ' '));
+//        $lastName  = substr($name, strlen($firstName) + 1);
 
         $data['firstname'] = $firstName;
         $data['lastname'] = $lastName;
