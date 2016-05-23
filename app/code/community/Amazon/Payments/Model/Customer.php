@@ -81,12 +81,19 @@ class Amazon_Payments_Model_Customer extends Mage_Customer_Model_Customer
     {
         // if the user only has a first name, handle accordingly
         $trimmedName = trim($name);
+        $trimmedName      = mb_convert_kana($trimmedName, 's', 'utf-8');
         if(strpos($trimmedName,' ')===false) {
             return array($trimmedName,'.');
         }
 
-        $firstName = substr($name, 0, strrpos($name, ' '));
-        $lastName  = substr($name, strlen($firstName) + 1);
+        if(Mage::app()->getLocale()->getLocaleCode() == 'ja_JP'){
+            $lastName = substr($trimmedName, 0, strrpos($trimmedName, ' '));
+            $firstName  = substr($trimmedName, strlen($lastName) + 1);
+        } else {
+            $firstName = substr($trimmedName, 0, strrpos($trimmedName, ' '));
+            $lastName  = substr($trimmedName, strlen($firstName) + 1);
+        }
+
         return array($firstName, $lastName);
     }
 
