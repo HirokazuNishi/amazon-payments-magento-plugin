@@ -372,6 +372,16 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
             } else {
                 $data['street'][] = $addressLine1;
             }
+        } elseif($countryCode && in_array($countryCode, array('JP'))){
+            if ($addressLine1) {
+                $data['city'] = $addressLine1;
+            }
+            if ($addressLine2) {
+                $data['street'][] = $addressLine2;
+            }
+            if ($addressLine3) {
+                $data['street'][] = $addressLine3;
+            }
         } else {
             if ($addressLine1) {
                 $data['street'][] = $addressLine1;
