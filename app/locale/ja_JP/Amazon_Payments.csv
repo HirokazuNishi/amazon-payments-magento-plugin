@@ -47,7 +47,7 @@
 "Pay with Amazon","Amazonアカウントでお支払い"
 "Pay","支払う"
 "Payment Declined By Amazon Payments","お支払いがAmazonペイメントで拒否されました"
-"Payment","支払い"
+"Payment","お支払い"
 "Please agree to all the terms and conditions before placing the order.","ご注文内容の送信前に、すべてのご利用規約に同意ください。"
 "Please log in below:","こちらからログインしてください:"
 "Please update your payment method below:","こちらからお支払い方法を更新してください:"
@@ -205,3 +205,4 @@
 "Credentials","認証情報"
 "Login and Pay with Amazon uses information from your Amazon account to place your order.","Amazonログイン & ペイメントは、ご注文手続きのためにお客様のAmazonアカウントの情報を使用します。"
 "Payment Information","お支払い方法"
+"Place Order","注文を確定する"
