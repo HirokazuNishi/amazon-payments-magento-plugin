@@ -373,14 +373,24 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
                 $data['street'][] = $addressLine1;
             }
         } elseif($countryCode && in_array($countryCode, array('JP'))){
-            if ($addressLine1) {
+            if ($data['city'] == '') {
                 $data['city'] = $addressLine1;
-            }
-            if ($addressLine2) {
-                $data['street'][] = $addressLine2;
-            }
-            if ($addressLine3) {
-                $data['street'][] = $addressLine3;
+                if ($addressLine2) {
+                    $data['street'][] = $addressLine2;
+                }
+                if ($addressLine3) {
+                    $data['street'][] = $addressLine3;
+                }
+            } else {
+                if ($addressLine1) {
+                    $data['street'][] = $addressLine1;
+                }
+                if ($addressLine2) {
+                    $data['street'][] = $addressLine2;
+                }
+                if ($addressLine3) {
+                    $data['street'][] = $addressLine3;
+                }
             }
         } else {
             if ($addressLine1) {
