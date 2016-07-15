@@ -206,3 +206,8 @@
 "Login and Pay with Amazon uses information from your Amazon account to place your order.","Amazonログイン & ペイメントは、ご注文手続きのためにお客様のAmazonアカウントの情報を使用します。"
 "Payment Information","お支払い方法"
 "Place Order","注文を確定する"
+"Login and Pay with Amazon helps you increase conversation, reduce fraud, acquire new customers and build loyalty.  <a href=""https://payments.amazon.com/"" target=""_blank"" class=""amzn-signup"">Learn More.</a>","ログイン＆ペイ with Amazonはコンバージョン率を向上させ、不正利用を防ぎ、新しいお客様とのロイヤリティを構築します。 <a href=""https://payments.amazon.com/"" target=""_blank"" class=""amzn-signup"">もっと知る。</a>"
+"Payment Action","処理モード"
+"Authorize Only","与信取得のみ"
+"Authorize and Capture","与信売上同時"
+"Soft Descriptor",""

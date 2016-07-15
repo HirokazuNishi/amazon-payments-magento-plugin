@@ -26,44 +26,6 @@
             <comment>
             <![CDATA[
                     Login and Pay with Amazon helps you increase conversation, reduce fraud, acquire new customers and build loyalty.  <a href="https://payments.amazon.com/" target="_blank" class="amzn-signup">Learn More.</a>
-                    <br /><br />
-                    <div id="amazon_simplepath">
-                        <span style="display:inline-block;padding-bottom:1em;">
-                            <button><span>Get started with account registration</span></button>
-                            &nbsp; &nbsp;
-                            <button><span>My account is ready, I need to connect it to Magento</span></button>
-                        </span>
-                        <span style="display:inline-block;">
-                            &nbsp; or &nbsp;
-                            <a href="#" id="simplepath-skip">I've already setup Pay with Amazon, I want to edit my settings</a>
-                        </span>
-
-                            <p style="color:red;display:none" id="amazon_https_required">In order to enable automatic account configuration using Amazon's secure key exchange, please turn on secure admin pages in System > Configuration > Web > Use secure URLs in Admin.</p>
-                            <p style="color:red;display:none" id="amazon_openssl_required">In order to set keys, the OpenSSL PHP library is required.</p>
-                            <p style="color:red;display:none" id="amazon_reload">Updating your config with new keys, please wait...</p>
-
-                    </div>
-
-                    <div id="amazon_simplepath_back" style="display:none;margin-bottom:1em;margin-top:-0.5em;">
-                      <a href="#">&laquo; Back</a>
-                    </div>
-
-
-                    <div id="amazon_instructions">
-
-                      <strong>Steps to Launch Login and Pay with Amazon</strong>
-                      <ol style="list-style:inside decimal;">
-                        <li>Register through our custom <a href="https://sellercentral.amazon.com/hz/me/sp/signup?solutionProviderOptions=lwa%3Bmws-acc%3B&marketplaceId=AGWSWK15IEJJ7&solutionProviderToken=AAAAAQAAAAEAAAAQCz2wulRfR9nOADyzVQrq5wAAAHAIIULh6RBNvlw68WY5S9ATlmInlyg2PLVF44yUVowkyjvDZPhtLf3UYn6fshHlKqwR4qptfBeltbxLtLrrIfK6JoxzuWe9FRTnCfSey8a0sFKuL3mwNenjLyMC9BAN1xU0S6pebxA2mz8t8Y1v5Axi&solutionProviderId=A2K7HE1S3M5XJ" target="_blank" class="amzn-link">Magento registration</a> <span class="amzn-us-signup">or visit <a href="https://payments.amazon.com/signup" target="_blank" class="amzn-link">https://payments.amazon.com/signup</a></span>
-                        <!--
-                        Register or login to retrieve your account keys: &nbsp<button onclick="javascript:window.open(&#39;&#39;, &#39;get_keys&#39,&#39;left=50, top=50, width=950, height=750&#39;); return false;" class="scalable" type="button"><span>Login to Get Your Keys</span></button></span></button>
-                        -->
-
-
-                        <li>Visit <a href="https://sellercentral.amazon.com/" target="_blank" class="amzn-link">Amazon Seller Central</a>  and Configure OAuth "Allowed Javascript Origins" in your Login with Amazon settings.
-                        <li>Under General->Web, enable "Use Secure URLs in Frontend." (HTTPS is required.)
-                      </ol>
-                    </div>
-                    <div style="clear:both;"></div>
             ]]>
             </comment>
 
