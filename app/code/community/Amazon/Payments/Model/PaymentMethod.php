@@ -251,16 +251,16 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
 
                 // specific error handling for InvalidPaymentMethod decline scenario
                 if($status->getReasonCode() == 'InvalidPaymentMethod') {
-                        Mage::throwException("There was a problem with your payment. Please select another payment method from the Amazon Wallet and try again.");
-                        break;
+                    Mage::throwException(Mage::helper('amazon_payments')->__("There was a problem with your payment. Please select another payment method from the Amazon Wallet and try again."));
+                    break;
                 }
 
                 // all other declines - AmazonRejected && ProcessingFailure && TransactionTimedOut (when async is off)
-                Mage::throwException("Amazon could not process your order. Please try again. If this continues, please select a different payment option.\n\n" . $status->getReasonCode() . " (" . $status->getState() . ")\n" . $status->getReasonDescription());
+                Mage::throwException(Mage::helper('amazon_payments')->__("Amazon could not process your order. Please try again. If this continues, please select a different payment option.\n\n") . $status->getReasonCode() . " (" . $status->getState() . ")\n" . $status->getReasonDescription());
                 break;
             default:
                 $this->_setErrorCheck();
-                Mage::throwException('Amazon could not process your order.');
+                Mage::throwException(Mage::helper('amazon_payments')->__('Amazon could not process your order.'));
                 break;
         }
 
@@ -286,7 +286,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
             $orderReferenceId = Mage::getSingleton('checkout/session')->getAmazonOrderReferenceId();
 
             if (!$orderReferenceId) {
-                Mage::throwException('Please log in to your Amazon account by clicking the Amazon pay button.');
+                Mage::throwException(Mage::helper('amazon_payments')->__('Please log in to your Amazon account by clicking the Amazon pay button.'));
             }
 
             $payment->setAdditionalInformation('order_reference', $orderReferenceId);
@@ -314,7 +314,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
             $apiResult = $this->_getApi()->confirmOrderReference($orderReferenceId);
         }
         catch (Exception $e) {
-            Mage::throwException("Please try another Amazon payment method."); // . "\n\n" . substr($e->getMessage(), 0, strpos($e->getMessage(), 'Stack trace')));
+            Mage::throwException(Mage::helper('amazon_payments')->__("Please try another Amazon payment method.")); // . "\n\n" . substr($e->getMessage(), 0, strpos($e->getMessage(), 'Stack trace')));
             $this->_setErrorCheck();
             return;
         }
@@ -389,19 +389,19 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
             // Error handling
             switch ($status->getState()) {
                 case Amazon_Payments_Model_Api::AUTH_STATUS_PENDING:
-                    Mage::getSingleton('adminhtml/session')->addError('The invoice you are trying to create is for an authorization that is more than 7 days old. A capture request has been made. Please try and create this invoice again in 1 hour, allowing time for the capture to process.');
-                    // cont'd...
+                    Mage::getSingleton('adminhtml/session')->addError(Mage::helper('amazon_payments')->__('The invoice you are trying to create is for an authorization that is more than 7 days old. A capture request has been made. Please try and create this invoice again in 1 hour, allowing time for the capture to process.'));
+                // cont'd...
                 case Amazon_Payments_Model_Api::AUTH_STATUS_DECLINED:
                 case Amazon_Payments_Model_Api::AUTH_STATUS_CLOSED:
                     $this->_setErrorCheck();
-                    Mage::throwException('Amazon Payments capture error: ' . $status->getReasonCode() . ' - ' . $status->getReasonDescription());
+                    Mage::throwException(Mage::helper('amazon_payments')->__('Amazon Payments capture error: ') . $status->getReasonCode() . ' - ' . $status->getReasonDescription());
                     break;
                 case Amazon_Payments_Model_Api::AUTH_STATUS_COMPLETED:
                     // Already captured.
                     break;
                 default:
                     $this->_setErrorCheck();
-                    Mage::throwException('Amazon Payments capture error.');
+                    Mage::throwException(Mage::helper('amazon_payments')->__('Amazon Payments capture error.'));
                     break;
             }
 
@@ -412,7 +412,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
         }
         else {
             $this->_setErrorCheck();
-            Mage::throwException('Unable to capture payment at this time. Please try again later.');
+            Mage::throwException(Mage::helper('amazon_payments')->__('Unable to capture payment at this time. Please try again later.'));
         }
 
         return $this;
@@ -424,7 +424,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
     public function refund(Varien_Object $payment, $amount)
     {
         if (!$this->canRefund()) {
-            Mage::throwException('Unable to refund.');
+            Mage::throwException(Mage::helper('amazon_payments')->__('Unable to refund.'));
         }
 
         $order = $payment->getOrder();
