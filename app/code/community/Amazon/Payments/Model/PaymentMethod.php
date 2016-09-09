@@ -256,7 +256,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
                 }
 
                 // all other declines - AmazonRejected && ProcessingFailure && TransactionTimedOut (when async is off)
-                Mage::throwException(Mage::helper('amazon_payments')->__("Amazon could not process your order. Please try again. If this continues, please select a different payment option.\n\n") . $status->getReasonCode() . " (" . $status->getState() . ")\n" . $status->getReasonDescription());
+                Mage::throwException(Mage::helper('amazon_payments')->__("Amazon could not process your order. Please try again. If this continues, please select a different payment option.") . $status->getReasonCode() . " (" . $status->getState() . ")\n" . $status->getReasonDescription());
                 break;
             default:
                 $this->_setErrorCheck();
