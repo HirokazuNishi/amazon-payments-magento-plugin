@@ -1,9 +1,9 @@
 <?php
 /**
- * Amazon Login
+ * Amazon Payments
  *
  * @category    Amazon
- * @package     Amazon_Login
+ * @package     Amazon_Payments
  * @copyright   Copyright (c) 2014 Amazon.com
  * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
  */

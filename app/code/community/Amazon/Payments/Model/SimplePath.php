@@ -250,13 +250,26 @@ class Amazon_Payments_Model_SimplePath
 
         foreach ($db->fetchAll($select) as $row) {
             $url = parse_url($row['value']);
-            $urls[] = 'https://' . $url['host'];
+
+            if (isset($url['host'])){
+                $urls[] = 'https://' . $url['host'];
+            }
         }
+
+        // Check config files
+        foreach (Mage::app()->getStores() as $store) {
+            $storeCode = $store->getCode();
+            if ($url = (string) Mage::getConfig()->getNode('stores/' . $storeCode . '/web/secure/base_url')) {
+                $urls[] = rtrim($url, '/');
+            }
+        }
+
+        $urls = array_unique($urls);
 
         return array(
             'locale' => Mage::getStoreConfig('general/country/default'),
             'spId' => self::PARAM_SP_ID,
-            'allowedLoginDomains[]' => array_unique($urls),
+            'allowedLoginDomains[]' => $urls,
             'spSoftwareVersion' => Mage::getVersion(),
             'spAmazonPluginVersion' => Mage::getConfig()->getModuleConfig("Amazon_Payments")->version,
         );

@@ -55,6 +55,16 @@ class Amazon_Payments_Block_Login_Button extends Mage_Core_Block_Template
     }
 
     /**
+     * Is Login with Amazon enabled?
+     *
+     * @return bool
+     */
+    public function isAmazonLoginEnabled()
+    {
+        return $this->helper('amazon_payments')->isLoginEnabled();
+    }
+
+    /**
      * Is popup window?
      *
      * @return bool

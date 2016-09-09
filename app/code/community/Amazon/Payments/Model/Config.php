@@ -39,6 +39,7 @@ class Amazon_Payments_Model_Config
 
     const CONFIG_XML_PATH_REGION         = 'amazon_login/settings/region';
     const CONFIG_XML_PATH_LANGUAGE       = 'amazon_login/settings/language';
+    const CONFIG_XML_PATH_LOGIN_ENABLED  = 'amazon_login/settings/enabled';
 
     /**
      * Retrieve config value for store by path
@@ -82,14 +83,14 @@ class Amazon_Payments_Model_Config
     }
 
     /**
-     * Is guest checkout/pay only? (does not create customer account)
+     * Is Login with Amazon enabled?
      *
      * @param   store $store
      * @return  bool
      */
-    public function isGuestCheckout($store = null)
+    public function isLoginEnabled($store = null)
     {
-        return false;
+        return (bool) $this->_getStoreConfig(self::CONFIG_XML_PATH_LOGIN_ENABLED, $store);
     }
 
     /**

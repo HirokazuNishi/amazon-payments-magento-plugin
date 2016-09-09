@@ -163,7 +163,7 @@
                     </files>
                 </Amazon_Payments>
             </modules>
-        </translate>        
+        </translate>
         <layout>
             <updates>
                 <amazon_payments>
@@ -196,6 +196,14 @@
                     </amazon_payments_observer>
                 </observers>
             </controller_action_predispatch_checkout_cart_index>
+            <controller_response_redirect>
+                <observers>
+                    <amazon_payments_observer>
+                        <class>Amazon_Payments_Model_Observer_Action</class>
+                        <method>responseRedirect</method>
+                    </amazon_payments_observer>
+                </observers>
+            </controller_response_redirect>
             <custom_quote_process>
                 <observers>
                     <amazon_payments_observer>
@@ -238,6 +246,7 @@
         </payment>
         <amazon_login>
             <settings>
+                <enabled>1</enabled>
                 <popup>1</popup>
             </settings>
         </amazon_login>

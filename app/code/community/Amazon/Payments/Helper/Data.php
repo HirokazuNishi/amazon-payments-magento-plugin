@@ -175,6 +175,14 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Is Login with Amazon enabled?
+     */
+    public function isLoginEnabled()
+    {
+        return $this->getConfig()->isLoginEnabled();
+    }
+
+    /**
      * Show modal?
      */
     public function showModal()

@@ -133,6 +133,11 @@ class Amazon_Payments_CheckoutController extends Amazon_Payments_Controller_Chec
             'review'          => $this->_getBlockHtml('checkout_amazon_payments_review'),
         );
 
+        // Validate country
+        if (!$this->isCountryAllowed($this->_getCheckout()->getQuote()->getShippingAddress()->getCountry())) {
+            $result['shipping_method'] = $this->__('This order cannot be shipped to the selected country. Please use a different shipping address.');
+        }
+
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
     }
 

@@ -9,6 +9,8 @@
  */
 ?>
 
+<?php if ($this->isAmazonLoginEnabled()) : ?>
+
 <div id="amazon-buttons-wrapper" class="col2-set">
     <div class="col-1">
         <div class="amazon-login-button-wrapper">
@@ -66,3 +68,5 @@
         </div>
     </div>
 </div>
+
+<?php endif; ?>

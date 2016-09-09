@@ -46,7 +46,7 @@ class Amazon_Payments_Model_Customer extends Mage_Customer_Model_Customer
                 exit;
 
             }
-            // Log user in
+            // Create account if applicable and log user in
             else {
                 // Create account
                 if (!$this->getId()) {

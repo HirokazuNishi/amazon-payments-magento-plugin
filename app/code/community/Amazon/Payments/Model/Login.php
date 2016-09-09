@@ -1,10 +1,9 @@
-<<<<<<< HEAD
 <?php
 /**
- * Access Amazon's API
+ * Login with Amazon
  *
  * @category    Amazon
- * @package     Amazon_Login
+ * @package     Amazon_Payments
  * @copyright   Copyright (c) 2014 Amazon.com
  * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
  */
@@ -16,29 +15,14 @@ class Amazon_Payments_Model_Login extends Mage_Core_Model_Abstract
             'maxredirects' => 2,
             'timeout' => 30);
 
-    protected function _construct()
+    public function _construct()
     {
         parent::_construct();
         $this->_init('amazon_payments/login');
     }
-    /**
-     * Get config Client ID
-     */
-    public function getClientId()
-    {
-        return trim(Mage::getStoreConfig('amazon_login/settings/client_id'));
-    }
 
     /**
-     * Get config Client Secret
-     */
-    public function getClientSecret()
-    {
-        return trim(Mage::getStoreConfig('amazon_login/settings/client_secret'));
-    }
-
-    /**
-     * Perform an API request to Amazon
+     * Perform an API request to Amazon Login API
      *
      * @param string $path
      *    REST path e.g. user/profile
