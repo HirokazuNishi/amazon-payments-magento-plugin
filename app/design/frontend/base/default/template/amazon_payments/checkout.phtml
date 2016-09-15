@@ -267,7 +267,8 @@ AmazonPaymentsMageCheckout.prototype = {
                 setTimeout(loadAmazonWallet, 2000); // Refresh Wallet
             }
 
-            if (msg.indexOf("Declined") != -1) {
+            // InvalidPaymentMethod?
+            if (msg.indexOf("Amazon Wallet") != -1) {
                 this.restrictShipping();
             }
 
