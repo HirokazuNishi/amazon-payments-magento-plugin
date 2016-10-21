@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Amazon_Payments>
-            <version>1.4.2</version>
+            <version>1.4.3</version>
         </Amazon_Payments>
         <Amazon_Login>
             <!-- Disable legacy module -->
