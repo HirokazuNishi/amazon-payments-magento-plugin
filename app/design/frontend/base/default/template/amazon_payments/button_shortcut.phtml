@@ -14,83 +14,120 @@
   <div id="<?php echo $this->getAmazonPayButtonId(); ?>" style="clear:both;"></div>
 
   <script type="text/javascript">
+
+    var AmazonConfirmModal = Class.create();
+
+    AmazonConfirmModal.prototype.show = function(url) {
+
+        this.oPopup = new Window({
+            id:'amazon_confirm_modal',
+            className: 'alphacube',
+            url: url,
+            width: 300,
+            height: 400,
+            minimizable: false,
+            maximizable: false,
+            showEffectOptions: {
+                duration: 0.4
+            },
+            hideEffectOptions:{
+                duration: 0.4
+            },
+            destroyOnClose: true,
+            onShow: function() { Event.observe($('overlay_modal'), 'click', function() { Windows.closeAll(); }) },
+            onClose: function() { $('overlay_modal').remove(); }
+        });
+        this.oPopup.setZIndex(100);
+        this.oPopup.showCenter(true);
+    }
+
+
     var authRequest;
 
-    var AmazonButtonOptions = {
-        type: "<?php echo $this->getButtonType(); ?>",
-        color: "<?php echo $this->getButtonColor(); ?>",
-        size: "<?php echo $this->getButtonSize(); ?>",
-        <?php if ($this->getLanguage()) : ?>
-        language: "<?php echo $this->getLanguage(); ?>",
-        <?php endif; ?>
-        authorization: function() {
-            loginOptions = {
-                scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
-                response_type: 'token',
-                popup: <?php print $this->isPopup(); ?>
-            };
+    AmazonPaymentsCallbacks["<?php echo $this->getAmazonPayButtonId(); ?>"] = function() {
 
-            authRequest = amazon.Login.authorize (loginOptions, "<?php echo !$this->isPopup() ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
-        },
-        onError: function(error) {
-            console.log(error);
-        }
-    };
+        var AmazonButtonOptions = {
+            type: "<?php echo $this->getButtonType(); ?>",
+            color: "<?php echo $this->getButtonColor(); ?>",
+            size: "<?php echo $this->getButtonSize(); ?>",
+            <?php if ($this->getLanguage()) : ?>
+            language: "<?php echo $this->getLanguage(); ?>",
+            <?php endif; ?>
+            authorization: function() {
+                loginOptions = {
+                    scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
+                    response_type: 'token',
+                    popup: <?php print $this->isPopup(); ?>,
+                    state: 'shortcut'
+                };
 
-    OffAmazonPayments.Button("<?php echo $this->getAmazonPayButtonId(); ?>", "<?php echo $this->getSellerId(); ?>", AmazonButtonOptions);
+                authRequest = amazon.Login.authorize (loginOptions, "<?php echo !$this->isPopup() ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
+            },
+            onError: function(error) {
+                console.log(error);
+            }
+        };
+
+        OffAmazonPayments.Button("<?php echo $this->getAmazonPayButtonId(); ?>", "<?php echo $this->getSellerId(); ?>", AmazonButtonOptions);
+
+        // jQuery wrapper -- OffAmazonPayments.jQuery loaded by Amazon API
+        (function($j) {
+            var productAddToCartFormAmazon =  new VarienForm('product_addtocart_form');
+
+            productAddToCartFormAmazon.submit = function(button) {
+                if (this.validator.validate()) {
+                    var form = this.form;
+                    var url = form.action;
+
+                    var e = null;
+
+                    var data = $j(form).serialize();
+                    data += '&isAjax=1';
+                    $j('#ajax_loader').show();
+
+                    if (document.location.protocol == 'https:') {
+                        url = url.replace('http:', document.location.protocol);
+                    }
+                    else {
+                        url = url.replace('https:', document.location.protocol);
+                    }
+
+                    // Add via Ajax and redirect to login/payment page
+                    $j.post(url, data,
+                        function(){
+                            $j('#ajax_loader').hide();
+
+                            <?php if ($this->isTokenEnabled()) : ?>
+                            var amazonModal = new AmazonConfirmModal();
+                            amazonModal.show('<?php print $this->getAjaxCartModalUrl(); ?>');
+                            <?php else : ?>
+                            $j("#<?php echo $this->getAmazonPayButtonId(); ?> img[id!='amazon-button-clone']").click();
+                            <?php endif; ?>
+                        }
+                    );
+
+                }
+            }.bind(productAddToCartFormAmazon);
+
+            // Duplicate Amazon button
+            $j("#<?php echo $this->getAmazonPayButtonId(); ?> img")
+                .hide()
+                .clone()
+                .attr("id", "amazon-button-clone")
+                .show()
+                .appendTo("#<?php echo $this->getAmazonPayButtonId(); ?>")
+                .click(productAddToCartFormAmazon.submit);
+
+
+      })(OffAmazonPayments.jQuery);
+    }
 
   </script>
 
 
 <script type="text/javascript">
 
-    // OffAmazonPayments.jQuery loaded by Amazon API
 
-    var productAddToCartFormAmazon =  new VarienForm('product_addtocart_form');
-
-    productAddToCartFormAmazon.submit = function(e) {
-        if (this.validator.validate()) {
-
-            OffAmazonPayments.jQuery("#<?php echo $this->getAmazonPayButtonId(); ?> img")
-                .css("opacity", "0.5").css("cursor", "progress");
-
-            var form = this.form;
-            var url = form.action;
-
-            var e = null;
-
-            var data = OffAmazonPayments.jQuery(form).serialize();
-            data += '&isAjax=1';
-            OffAmazonPayments.jQuery('#ajax_loader').show();
-
-            if (document.location.protocol == 'https:') {
-                url = url.replace('http:', document.location.protocol);
-            }
-            else {
-                url = url.replace('https:', document.location.protocol);
-            }
-
-            // Add via Ajax and redirect to login/payment page
-            OffAmazonPayments.jQuery.post(url, data,
-                function(){
-                    OffAmazonPayments.jQuery('#ajax_loader').hide();
-                    OffAmazonPayments.jQuery("#<?php echo $this->getAmazonPayButtonId(); ?> img[id!='amazon-button-clone']").click();
-                }
-            )
-            ;
-
-        }
-    }.bind(productAddToCartFormAmazon);
-
-
-    // Duplicate Amazon button
-    OffAmazonPayments.jQuery("#<?php echo $this->getAmazonPayButtonId(); ?> img")
-        .hide()
-        .clone()
-        .attr("id", "amazon-button-clone")
-        .show()
-        .appendTo("#<?php echo $this->getAmazonPayButtonId(); ?>")
-        .click(productAddToCartFormAmazon.submit);
 
 
 </script>

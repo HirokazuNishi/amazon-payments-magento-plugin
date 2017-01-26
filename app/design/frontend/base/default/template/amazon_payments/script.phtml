@@ -9,11 +9,7 @@
  */
 ?>
 
-<?php
-    if (!Mage::helper('amazon_payments/data')->isEnabled()) {
-        return;
-    }
-?>
+<?php if ($this->isEnabled()) : ?>
 
 <script type='text/javascript'>
     window.onAmazonLoginReady = function() {
@@ -22,17 +18,22 @@
         <?php if (!$this->isPopup()) : ?>
         amazon.Login.setUseCookie(true);
         <?php endif; ?>
-
     };
 
     <?php if (!$this->isPopup()) : ?>
     src = '<?php echo $this->getWidgetsUrl(); ?>';
     <?php endif; ?>
 
+    // Async render callback
+    var AmazonPaymentsCallbacks = { };
+    window.onAmazonPaymentsReady = function() {
+        jQuery.noConflict();
+        for (var i in AmazonPaymentsCallbacks) {
+            AmazonPaymentsCallbacks[i]();
+        }
+    }
 </script>
 
-<script type='text/javascript' src='<?php echo $this->getWidgetsUrl(); ?>'></script>
-<script>jQuery.noConflict();</script>
 
 <?php if ($this->showModal()) : ?>
 
@@ -85,8 +86,6 @@ AmazonModal.prototype.resize = function() {
 }
 
 
-
-
 document.observe("dom:loaded", function() {
     var amazonModal = new AmazonModal(1020);
     amazonModal.show('<?php print $this->getStandaloneUrl(); ?>?ajax=1&<?php print htmlentities($_SERVER['QUERY_STRING']); ?>');
@@ -96,3 +95,5 @@ document.observe("dom:loaded", function() {
 </script>
 
 <?php endif; ?>
+
+<?php endif; // isEnabled ?>

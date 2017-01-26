@@ -16,29 +16,41 @@
   <script type="text/javascript">
     var authRequest;
 
-    var AmazonButtonOptions = {
-        type: "<?php echo $this->getButtonType(); ?>",
-        color: "<?php echo $this->getButtonColor(); ?>",
-        size: "<?php echo $this->getButtonSize(); ?>",
-        <?php if ($this->getLanguage()) : ?>
-        language: "<?php echo $this->getLanguage(); ?>",
-        <?php endif; ?>
-        authorization: function() {
-            loginOptions = {
-                scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
-                response_type: 'token',
-                popup: <?php print $this->isPopup(); ?>
-            };
+    AmazonPaymentsCallbacks["<?php echo $this->getAmazonPayButtonId(); ?>"] = function() {
 
-            authRequest = amazon.Login.authorize (loginOptions, "<?php echo (!$this->isPopup()) ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
-        },
-        onError: function(error) {
-            console.log(error);
-        }
-    };
+        var AmazonButtonOptions = {
+            type: "<?php echo $this->getButtonType(); ?>",
+            color: "<?php echo $this->getButtonColor(); ?>",
+            size: "<?php echo $this->getButtonSize(); ?>",
+            <?php if ($this->getLanguage()) : ?>
+            language: "<?php echo $this->getLanguage(); ?>",
+            <?php endif; ?>
+            authorization: function() {
+                loginOptions = {
+                    scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
+                    response_type: 'token',
+                    popup: <?php print $this->isPopup(); ?>
+                };
 
-    OffAmazonPayments.Button("<?php echo $this->getAmazonPayButtonId(); ?>", "<?php echo $this->getSellerId(); ?>", AmazonButtonOptions);
+                authRequest = amazon.Login.authorize (loginOptions, "<?php echo (!$this->isPopup()) ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
+            },
 
+            <?php if ($this->isTokenEnabled()) : ?>
+            agreementType: 'BillingAgreement',
+            onSignIn: function (billingAgreement) {
+                amazonBillingAgreementId = billingAgreement.getAmazonBillingAgreementId();
+                Mage.Cookies.set("amazonBillingAgreementId", amazonBillingAgreementId);
+            },
+            <?php endif; ?>
+
+            onError: function(error) {
+                console.log(error);
+            }
+        };
+
+        OffAmazonPayments.Button("<?php echo $this->getAmazonPayButtonId(); ?>", "<?php echo $this->getSellerId(); ?>", AmazonButtonOptions);
+
+    }
   </script>
 
 <?php endif; ?>

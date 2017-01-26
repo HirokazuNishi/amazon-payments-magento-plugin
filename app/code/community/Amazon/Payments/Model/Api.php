@@ -224,7 +224,7 @@ class Amazon_Payments_Model_Api extends Varien_Object
      *
      * @param string $amazonOrderReferenceId
      * @param string $addressConsentToken
-     * @return OffAmazonPaymentsService_Model_GetOrderReferenceDetailsResponse
+     * @return OrderReferenceDetails
      * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_GetOrderReferenceDetails.html
      */
     public function getOrderReferenceDetails($amazonOrderReferenceId, $addressConsentToken = null)
@@ -233,6 +233,10 @@ class Amazon_Payments_Model_Api extends Varien_Object
             'AmazonOrderReferenceId' => $amazonOrderReferenceId,
             'AddressConsentToken' => $addressConsentToken,
         );
+
+        if (!$amazonOrderReferenceId && $this->_isLoggingEnabled()) {
+            Mage::log('GetOrderReferenceDetails Error: No Order Reference ID', null, $this->logFile);
+        }
 
         $response = $this->request('getOrderReferenceDetails', $request);
 
@@ -279,7 +283,7 @@ class Amazon_Payments_Model_Api extends Varien_Object
      * @param string $orderCurrency
      * @param string $orderId
      * @param string $storeName
-     * @return OffAmazonPaymentsService_Model_SetOrderReferenceDetailsResponse
+     * @return OrderReferenceDetails
      * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_SetOrderReferenceDetails.html
      */
     public function setOrderReferenceDetails($orderReferenceId, $orderAmount, $orderCurrency, $orderId = '', $storeName = '')
@@ -395,6 +399,149 @@ class Amazon_Payments_Model_Api extends Varien_Object
                 return $result->getRefundDetails();
             }
         }
+        return $response;
+    }
+
+    /**
+     * GetBillingAgreementDetails
+     *
+     * @param string $amazonBillingAgreementId
+     * @param string $addressConsentToken
+     * @return OffAmazonPaymentsService_Model_GetBillingAgreementDetails
+     * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_GetBillingAgreementDetails.html
+     */
+    public function getBillingAgreementDetails($amazonBillingAgreementId, $addressConsentToken = null)
+    {
+        $request = array(
+            'AmazonBillingAgreementId' => $amazonBillingAgreementId,
+            'AddressConsentToken'      => $addressConsentToken,
+        );
+
+        $response = $this->request('getBillingAgreementDetails', $request);
+
+        if ($response && $response->isSetGetBillingAgreementDetailsResult()) {
+            $result = $response->getGetBillingAgreementDetailsResult();
+            if ($result->isSetBillingAgreementDetails()) {
+                return $result->getBillingAgreementDetails();
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * ConfirmBillingAgreement
+     *
+     * @param string $amazonBillingAgreementId
+     * @return OffAmazonPaymentsService_Model_ConfirmBillingAgreementResponse
+     * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_ConfirmOrderReference.html
+     */
+    public function confirmBillingAgreement($amazonBillingAgreementId)
+    {
+        $request = array(
+            'AmazonBillingAgreementId' => $amazonBillingAgreementId,
+        );
+
+        return $this->request('confirmBillingAgreement', $request);
+    }
+
+    /**
+     * AuthorizeOnBillingAgreement
+     *
+     * @param string $amazonBillingAgreementId
+     * @return OffAmazonPaymentsService_Model_AuthorizeOnBillingAgreementResult
+     * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_AuthorizeOnBillingAgreement.html
+     */
+    public function authorizeOnBillingAgreement($amazonBillingAgreementId, $authorizationReferenceId, $authorizationAmount, $authorizationCurrency, $captureNow = false, $softDescriptor = null, $sellerAuthorizationNote = null, $forceSync = false)
+    {
+        $request = array(
+            'AmazonBillingAgreementId' => $amazonBillingAgreementId,
+            'AuthorizationReferenceId' => $authorizationReferenceId,
+            'AuthorizationAmount' => array(
+                'Amount'       => $authorizationAmount,
+                'CurrencyCode' => $authorizationCurrency
+            ),
+            'CaptureNow' => $captureNow,
+        );
+
+        if (!$this->getConfig()->isAsync() || $forceSync) {
+            $request['TransactionTimeout'] = 0; // Synchronous Mode
+        }
+
+        if ($softDescriptor) {
+            $request['SoftDescriptor'] = $softDescriptor;
+        }
+
+        if ($sellerAuthorizationNote) {
+            $request['SellerAuthorizationNote'] = trim($sellerAuthorizationNote);
+        }
+
+        $response = $this->request('authorizeOnBillingAgreement', $request);
+
+        if ($response && $response->isSetAuthorizeOnBillingAgreementResult()) {
+            return $response->getAuthorizeOnBillingAgreementResult();
+        }
+
+        return $response;
+    }
+
+    /**
+     * CreateOrderReferenceForId
+     *
+     * @param string $id
+     * @param string $idType
+     * @param bool $inheritShippingAddress
+     * @param bool $confirmNow
+     * @param OrderReferenceAttributes $orderReferenceAttributes
+     * @return OffAmazonPaymentsService_Model_CreateOrderReferenceForIdResult
+     * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_CreateOrderReferenceForId.html
+     */
+    public function createOrderReferenceForId($id, $idType, $inheritShippingAddress = true, $confirmNow = false, array $orderReferenceAttributes = null)
+    {
+        $request = array(
+            'Id' => $id,
+            'IdType' => $idType,
+            'InheritShippingAddress' => $inheritShippingAddress,
+            'ConfirmNow' => $confirmNow,
+        );
+
+        if ($orderReferenceAttributes) {
+            $request['OrderReferenceAttributes'] = $orderReferenceAttributes;
+        }
+
+        $response = $this->request('createOrderReferenceForId', $request);
+
+        if ($response && $response->isSetCreateOrderReferenceForIdResult()) {
+            $result = $response->getCreateOrderReferenceForIdResult();
+            if ($result->isSetOrderReferenceDetails()) {
+                return $result->getOrderReferenceDetails();
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * CloseBillingAgreement
+     *
+     * @param string $amazonBillingAgreementId
+     * @param string $closureReason
+     * @return OffAmazonPaymentsService_Model_CloseBillingAgreementResult
+     * @link http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_CloseBillingAgreement.html
+     */
+    public function closeBillingAgreement($amazonBillingAgreementId, $closureReason = null)
+    {
+        $request = array(
+            'AmazonBillingAgreementId' => $amazonBillingAgreementId,
+            'ClosureReason' => $closureReason,
+        );
+
+        $response = $this->request('closeBillingAgreement', $request);
+
+        if ($response && $response->isSetCloseBillingAgreementResult()) {
+            return $response->getCloseBillingAgreement();
+        }
+
         return $response;
     }
 

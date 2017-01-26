@@ -7,6 +7,7 @@
  * @copyright   Copyright (c) 2014 Amazon.com
  * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
  */
+
 ?>
 
 <div id="amazon-checkout">
@@ -15,9 +16,8 @@
         <h1><?php echo $this->__('Checkout') ?></h1>
     </div>
 
-    <?php echo $this->__('Login and Pay with Amazon uses information from your Amazon account to place your order.'); ?>
+    <?php echo $this->__('Amazon Payments uses information from your Amazon account to place your order.'); ?>
     <?php echo $this->__('Click <a href="#" id="amazon-cancel">here</a> to change your payment method.'); ?>
-
 
     <div id="checkout-amazon-payments">
         <div id="checkout-amazon-columns">
@@ -46,6 +46,14 @@
                     <div class="amz-widget-loader" style="display:none;"></div>
                     <div id="amazon-widget-wallet"></div>
                 </div>
+
+                <?php if ($this->isTokenEnabled()) : ?>
+                    <div id="amazon-widget-consent"></div>
+                <?php endif; ?>
+
+                <?php if ($this->isShowCoupon()) : ?>
+                    <?php echo $this->getChildHtml('coupon') ?>
+                <?php endif; ?>
 
             </div>
 
@@ -90,6 +98,8 @@ var AmazonPaymentsMageCheckout = Class.create();
 AmazonPaymentsMageCheckout.prototype = {
     initialize: function(opts){
         this.opts = opts;
+        this.amazonBillingAgreementId = null;
+        this.amazonBillingAgreementConsent = false;
         this.hasPayment = false;
         this.hasReviewLoader = false;
         this.hasHiddenShippingMethod = false;
@@ -103,7 +113,7 @@ AmazonPaymentsMageCheckout.prototype = {
 
             var request = new Ajax.Request(this.opts.addressSelect.url, {
                 method: 'post',
-                parameters: { "amazon_order_reference_id": this.amazonOrderReferenceId },
+                parameters: { "amazon_order_reference_id": this.amazonOrderReferenceId, "amazon_billing_agreement_id": this.amazonBillingAgreementId },
                 onSuccess: this.onSaveAddress.bindAsEventListener(this)
             });
         }
@@ -205,14 +215,26 @@ AmazonPaymentsMageCheckout.prototype = {
     },
 
     saveOrder: function() {
-        var params = {};
 
-        if (this.agreementsForm) {
-            params += '&'+Form.serialize(this.agreementsForm);
-        }
-        params.save = true;
+      <?php if ($this->isTokenRequired()) : ?>
+      if (!this.amazonBillingAgreementConsent) {
+          alert("Please check 'Use my selected payment method for future purchases and payments to this merchant' to complete this purchase.");
+          return;
+      }
+      <?php endif; ?>
 
-        params.amazon_order_reference_id = this.amazonOrderReferenceId;
+      var params = {};
+
+      if (this.agreementsForm) {
+          params = this.agreementsForm.serialize(true);
+      }
+
+      params.save = true;
+
+      params.amazon_order_reference_id        = this.amazonOrderReferenceId;
+      params.amazon_billing_agreement_id      = this.amazonBillingAgreementId;
+      params.amazon_billing_agreement_consent = this.amazonBillingAgreementConsent;
+
 
         var sandbox = $('sandbox');
         if (sandbox) {
@@ -255,6 +277,12 @@ AmazonPaymentsMageCheckout.prototype = {
             if (typeof(msg)=='object') {
                 msg = msg.join("\n");
             }
+
+            // Clean BillingAgreement error message
+            if (msg.indexOf("BillingAgreement") != -1 && msg.indexOf("total authorization amount cannot exceed") != -1) {
+                msg = "You have exceeded your total authorization amount for this billing agreement period. Please contact the store manager."
+            }
+
             if (msg) {
                 alert(msg);
             }
@@ -431,25 +459,52 @@ document.observe('dom:loaded', function(){
 <!-- Address Book Widget JS -->
 <script>
 
-new OffAmazonPayments.Widgets.AddressBook({
-  sellerId: '<?php echo $this->getSellerId(); ?>',
-  onOrderReferenceCreate: function(orderReference) {
-      amazonPaymentsMageCheckout.amazonOrderReferenceId = orderReference.getAmazonOrderReferenceId();
-  },
-  onAddressSelect: function(orderReference) {
-      amazonPaymentsMageCheckout.setAddress();
-      amazonPaymentsMageCheckout.hasPayment = false;
-  },
-  design: {
-     designMode: 'responsive'
-  },
-  onError: function(error) {
-    if (error.getErrorCode() == "BuyerSessionExpired") {
-         window.top.location.href = '<?php echo $this->getUrl('checkout/amazon_payments/clear'); ?>';
+var amazonBillingAgreementId;
+
+var addressBookOpts = {
+    sellerId: '<?php echo $this->getSellerId(); ?>',
+    onOrderReferenceCreate: function(orderReference) {
+        amazonPaymentsMageCheckout.amazonOrderReferenceId = orderReference.getAmazonOrderReferenceId();
+    },
+    onAddressSelect: function(orderReference) {
+        amazonPaymentsMageCheckout.setAddress();
+        amazonPaymentsMageCheckout.hasPayment = false;
+    },
+    design: {
+        designMode: 'responsive'
+    },
+    onError: function(error) {
+        if (error.getErrorCode() == "BuyerSessionExpired") {
+             window.top.location.href = '<?php echo $this->getUrl('checkout/amazon_payments/clear'); ?>';
+        }
+        console.log(error.getErrorMessage());
     }
-    console.log(error.getErrorMessage());
-  }
-}).bind("amazon-widget-address");
+};
+
+
+<?php if ($this->isTokenEnabled()) : ?>
+amazonBillingAgreementId = Mage.Cookies.get("amazonBillingAgreementId");
+
+if (amazonBillingAgreementId) {
+    addressBookOpts.agreementType = "BillingAgreement";
+    addressBookOpts.amazonBillingAgreementId = amazonBillingAgreementId;
+}
+
+addressBookOpts.onReady = function(billingAgreement) {
+    if (!amazonBillingAgreementId) {
+        amazonBillingAgreementId = billingAgreement.getAmazonBillingAgreementId();
+    }
+
+    amazonPaymentsMageCheckout.amazonBillingAgreementId = amazonBillingAgreementId;
+    loadAmazonWallet();
+};
+<?php endif; ?>
+
+
+AmazonPaymentsCallbacks["widgets_address"] = function() {
+    new OffAmazonPayments.Widgets.AddressBook(addressBookOpts).bind("amazon-widget-address");
+}
+
 </script>
 
 
@@ -457,19 +512,66 @@ new OffAmazonPayments.Widgets.AddressBook({
 <script>
 function loadAmazonWallet() {
     new OffAmazonPayments.Widgets.Wallet({
-      sellerId: '<?php echo $this->getSellerId(); ?>',
+        <?php if ($this->isTokenEnabled()) : ?>
+        amazonBillingAgreementId: amazonBillingAgreementId,
+        <?php endif; ?>
+        sellerId: '<?php echo $this->getSellerId(); ?>',
         design: {
-          designMode: 'responsive',
-      },
+            designMode: 'responsive',
+        },
+        onPaymentSelect: function(orderReference) {
+            <?php if ($this->isTokenEnabled()) : ?>
+            loadAmazonConsent();
+            <?php endif; ?>
+            amazonPaymentsMageCheckout.hasPayment = true;
+        },
+        onError: function(error) {
+            console.log(error.getErrorMessage());
+        }
+    }).bind("amazon-widget-wallet");
+}
 
+<?php if (!$this->isTokenEnabled()) : ?>
+AmazonPaymentsCallbacks["widgets_wallet"] = function() {
+    loadAmazonWallet();
+}
+<?php endif; ?>
+
+</script>
+
+<?php if ($this->isTokenEnabled()) : ?>
+<!-- Consent Widget JS -->
+<script>
+function loadAmazonConsent() {
+
+    new OffAmazonPayments.Widgets.Consent({
+      sellerId: '<?php echo $this->getSellerId(); ?>',
+      // amazonBillingAgreementId obtained from the Amazon Address Book widget.
+      amazonBillingAgreementId: amazonBillingAgreementId,
+      design: {
+          designMode: 'responsive'
+      },
+      onReady: function(billingAgreementConsentStatus){
+          // Called after widget renders
+          if (typeof billingAgreementConsentStatus != "undefined") {
+              amazonPaymentsMageCheckout.amazonBillingAgreementConsent = billingAgreementConsentStatus.getConsentStatus() == "true" ? true : false;
+          }
+      },
+      onConsent: function(billingAgreementConsentStatus) {
+          if (typeof billingAgreementConsentStatus != "undefined") {
+              amazonPaymentsMageCheckout.amazonBillingAgreementConsent = billingAgreementConsentStatus.getConsentStatus() == "true" ? true : false;
+          }
+      },
       onPaymentSelect: function(orderReference) {
           amazonPaymentsMageCheckout.hasPayment = true;
       },
       onError: function(error) {
           console.log(error.getErrorMessage());
       }
-    }).bind("amazon-widget-wallet");
+    }).bind("amazon-widget-consent");
 }
 
-loadAmazonWallet();
 </script>
+
+<?php endif; ?>
+

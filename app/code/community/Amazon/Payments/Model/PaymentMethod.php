@@ -138,6 +138,20 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
         $stateObject->setIsNotified(Mage_Sales_Model_Order_Status_History::CUSTOMER_NOTIFICATION_NOT_APPLICABLE);
     }
 
+    /**
+     * Pre-order (no authorize or capture)
+     */
+    protected function _preorder(Varien_Object $payment, $amount, $message)
+    {
+        $order = $payment->getOrder();
+        $message = str_ireplace('order', 'Pre-order', $message);
+
+        $payment->setTransactionId($payment->getAdditionalInformation('order_reference'));
+        $payment->setIsTransactionClosed(false);
+
+        $transactionType = Mage_Sales_Model_Order_Payment_Transaction::TYPE_ORDER;
+        $payment->addTransaction($transactionType, null, false, $message);
+    }
 
     /**
      * Authorize, with option to Capture
@@ -145,6 +159,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
     protected function _authorize(Varien_Object $payment, $amount, $captureNow = false)
     {
         $order = $payment->getOrder();
+        $orderReference = $payment->getAdditionalInformation('order_reference');
 
         $sellerAuthorizationNote = null;
 
@@ -161,25 +176,48 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
         // For core and third-party checkouts, may test credit card decline by uncommenting:
         //$sellerAuthorizationNote = '{"SandboxSimulation": {"State":"Declined", "ReasonCode":"InvalidPaymentMethod", "PaymentMethodUpdateTimeInMins":5}}';
 
-        $result = $this->_getApi($order->getStoreId())->authorize(
-            $payment->getTransactionId(),
-            $this->_getMagentoReferenceId($payment) . '-auth',
-            $amount,
-            $order->getBaseCurrencyCode(),
-            $captureNow,
-            ($captureNow) ? $this->_getSoftDescriptor() : null,
-            $sellerAuthorizationNote,
-            $this->isForceSync
-        );
+        // Token payment (i.e. authorize against billing agreement id)
+        if ($amazonBillingAgreementId = $payment->getAdditionalInformation('billing_agreement_id')) {
+            $forceSync = $this->_isPreorder($payment) && $this->getConfig('is_async'); // Manual Sync
 
-        $status = $result->getAuthorizationStatus();
+            $result = $this->_getApi($order->getStoreId())->authorizeOnBillingAgreement(
+                $amazonBillingAgreementId,
+                $this->_getMagentoReferenceId($payment) . '-bill',
+                $amount,
+                $order->getBaseCurrencyCode(),
+                $captureNow,
+                ($captureNow) ? $this->_getSoftDescriptor() : null,
+                $sellerAuthorizationNote,
+                $forceSync
+            );
+
+            $authorizationDetails = $result->getAuthorizationDetails();
+
+            $orderReference = $result->getAmazonOrderReferenceId();
+            $payment->setAdditionalInformation('order_reference', $orderReference);
+        }
+        // Normal payment
+        else {
+            $authorizationDetails = $this->_getApi($order->getStoreId())->authorize(
+                $payment->getTransactionId(),
+                $this->_getMagentoReferenceId($payment) . '-auth',
+                $amount,
+                $order->getBaseCurrencyCode(),
+                $captureNow,
+                ($captureNow) ? $this->_getSoftDescriptor() : null,
+                $sellerAuthorizationNote,
+                $this->isForceSync
+            );
+        }
+
+        $status = $authorizationDetails->getAuthorizationStatus();
 
         switch ($status->getState()) {
             case Amazon_Payments_Model_Api::AUTH_STATUS_PENDING:
             case Amazon_Payments_Model_Api::AUTH_STATUS_OPEN:
             case Amazon_Payments_Model_Api::AUTH_STATUS_CLOSED:
 
-                $payment->setTransactionId($result->getAmazonAuthorizationId());
+                $payment->setTransactionId($authorizationDetails->getAmazonAuthorizationId());
                 $payment->setParentTransactionId($payment->getAdditionalInformation('order_reference'));
                 $payment->setIsTransactionClosed(false);
 
@@ -189,7 +227,7 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
                     if ($this->isForceSync) { // Not async
                         $transactionSave = Mage::getModel('core/resource_transaction');
 
-                        $captureReferenceIds = $result->getIdList()->getmember();
+                        $captureReferenceIds = $authorizationDetails->getIdList()->getmember();
 
                         if ($order->canInvoice()) {
                             // Create invoice
@@ -280,7 +318,36 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
             return $this;
         }
 
-        $orderReferenceId = $payment->getAdditionalInformation('order_reference');
+        // Admin order using token (Amazon Billing Agreement id)
+        if ($adminBillingAgreementId = Mage::getSingleton('adminhtml/session_quote')->getAmazonBillingAgreementId()) {
+            $payment->setAdditionalInformation('order_reference', $adminBillingAgreementId);
+            $payment->setAdditionalInformation('billing_agreement_id', $adminBillingAgreementId);
+        }
+
+        $orderReferenceId   = $payment->getAdditionalInformation('order_reference');
+        $billingAgreementId = $payment->getAdditionalInformation('billing_agreement_id'); // token payment. orderReferenceId will be the same.
+
+        $orderConfirmed = false;
+
+        // User did not agree to billing agreement; create order reference ID from billing agreement ID
+        if ($billingAgreementId && !$adminBillingAgreementId && !$payment->getAdditionalInformation('billing_agreement_consent')) {
+            $orderAttributes = array(
+                'PlatformId' => Amazon_Payments_Model_Api::ORDER_PLATFORM_ID,
+                'OrderTotal' => array(
+                    'CurrencyCode' => $payment->getOrder()->getBaseCurrencyCode(),
+                    'Amount' => $amount,
+                )
+             );
+
+            $orderReferenceDetails = $this->_getApi()->createOrderReferenceForId($billingAgreementId, 'BillingAgreement', true, true, $orderAttributes);
+            $orderReferenceId = $orderReferenceDetails->getAmazonOrderReferenceId();
+            $billingAgreementId = false;
+            $orderConfirmed = true;
+
+            $payment->setAdditionalInformation('order_reference', $orderReferenceId);
+            $payment->unsAdditionalInformation('billing_agreement_id');
+            $payment->unsAdditionalInformation('billing_agreement_consent');
+        }
 
         if (!$orderReferenceId) {
             $orderReferenceId = Mage::getSingleton('checkout/session')->getAmazonOrderReferenceId();
@@ -295,40 +362,59 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
         $payment->setTransactionId($orderReferenceId);
         $order = $payment->getOrder();
 
-        // If previous order submission failed (e.g. bad credit card), must validate order status to prevent multiple setOrderReferenceDetails()
-        if ($this->_getErrorCheck()) {
-            $orderReferenceDetails = $this->_getApi()->getOrderReferenceDetails($orderReferenceId);
-        }
+        // Normal order (no token)
+        if (!$billingAgreementId && !$orderConfirmed) {
+            // If previous order submission failed (e.g. bad credit card), must validate order status to prevent multiple setOrderReferenceDetails()
+            if ($this->_getErrorCheck()) {
+                $orderReferenceDetails = $this->_getApi()->getOrderReferenceDetails($orderReferenceId);
+            }
 
-        if (!$this->_getErrorCheck() || $orderReferenceDetails->getOrderReferenceStatus()->getState() == 'Draft') {
-            $apiResult = $this->_getApi()->setOrderReferenceDetails(
-                $orderReferenceId,
-                $order->getBaseGrandTotal(),
-                $order->getBaseCurrencyCode(),
-                $order->getIncrementId(),
-                $this->_getApi()->getConfig()->getStoreName()
-            );
-        }
+            if (!$this->_getErrorCheck() || $orderReferenceDetails->getOrderReferenceStatus()->getState() == 'Draft') {
+                $apiResult = $this->_getApi()->setOrderReferenceDetails(
+                    $orderReferenceId,
+                    $order->getBaseGrandTotal(),
+                    $order->getBaseCurrencyCode(),
+                    $order->getIncrementId(),
+                    $this->_getApi()->getConfig()->getStoreName()
+                );
+            }
 
-        try {
-            $apiResult = $this->_getApi()->confirmOrderReference($orderReferenceId);
+            try {
+                $apiResult = $this->_getApi()->confirmOrderReference($orderReferenceId);
+            }
+            catch (Exception $e) {
+                Mage::throwException("Please try another Amazon payment method." . "\n\n" . substr($e->getMessage(), 0, strpos($e->getMessage(), 'Stack trace')));
+                $this->_setErrorCheck();
+                return;
+            }
         }
-        catch (Exception $e) {
-            Mage::throwException(Mage::helper('amazon_payments')->__("Please try another Amazon payment method.")); // . "\n\n" . substr($e->getMessage(), 0, strpos($e->getMessage(), 'Stack trace')));
-            $this->_setErrorCheck();
-            return;
+        // Token payment
+        else if ($billingAgreementId) {
+            $apiResult = $this->_getApi()->confirmBillingAgreement($billingAgreementId);
+            // Save token
+            if ($apiResult && $payment->getAdditionalInformation('billing_agreement_consent')) {
+                Mage::getModel('amazon_payments/token')->saveBillingAgreementId($billingAgreementId, $order->getQuote()->getShippingAddress()->getShippingMethod());
+            }
         }
 
         $payment->setIsTransactionClosed(false);
         $payment->setSkipOrderProcessing(true);
 
         $comment  = '';
-        $comment .=  $this->_getApi()->getConfig()->isSandbox() ? 'Sandbox ' : '';
+        $comment .= $this->getConfigData('is_async') ? 'Asynchronous ' : '';
+        $comment .= $billingAgreementId ? 'Tokenized ' : '';
+        $comment .= $this->_getApi()->getConfig()->isSandbox() ? 'Sandbox ' : '';
+
         $comment .= 'Order of %s sent to Amazon Payments.';
         $message = Mage::helper('payment')->__($comment, $order->getStore()->convertPrice($amount, true, false));
 
-        $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_ORDER, null, false, $message);
+        // Pre-order (delayed tokenized payment)
+        if ($this->getConfigData('token_delayed') && $billingAgreementId) {
+            $this->_preorder($payment, $amount, $message);
+            return $this;
+        }
 
+        $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_ORDER, null, false, $message);
 
         switch ($this->getConfigData('payment_action')) {
             case self::ACTION_AUTHORIZE:
@@ -370,6 +456,11 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
      */
     public function capture(Varien_Object $payment, $amount)
     {
+        // Pre-order (delayed tokenized) payment must authorize and capture
+        if ($this->_isPreorder($payment)) {
+            return $this->_authorize($payment, $amount, true);
+        }
+
         $transactionAuth = $payment->lookupTransaction(false, Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
         $authReferenceId = $transactionAuth->getTxnId();
 
@@ -471,17 +562,43 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
         $order = $payment->getOrder();
         $orderTransaction = $payment->lookupTransaction(false, Mage_Sales_Model_Order_Payment_Transaction::TYPE_ORDER);
 
-        if (!$orderTransaction) {
+        if (!$orderTransaction || $payment->getAdditionalInformation('billing_agreement_id')) {
             $orderTransactionId = $payment->getAdditionalInformation('order_reference');
         }
         else {
             $orderTransactionId = $orderTransaction->getTxnId();
         }
 
+        if ($payment->getAdditionalInformation('billing_agreement_id')) {
+            $orderReferenceDetails = $this->_getApi()->getOrderReferenceDetails($orderTransactionId);
+            $state = $orderReferenceDetails->getOrderReferenceStatus()->getState();
+            if ($state == 'Closed' || $state == 'Canceled') {
+                return $this;
+            }
+        }
+
         if ($orderTransaction) {
             $this->_getApi($order->getStoreId())->cancelOrderReference($orderTransactionId);
         }
+
         return $this;
+    }
+
+    /**
+     * Is pre-order?
+     *
+     * @return bool
+     */
+    function _isPreorder($payment)
+    {
+        // Pre-order (delayed tokenized) payment must authorize and capture
+        if ($payment->getAdditionalInformation('billing_agreement_id')) {
+            $lastTrans = $payment->lookupTransaction($payment->getLastTransId());
+            if ($lastTrans && $lastTrans->getTxnType() == Mage_Sales_Model_Order_Payment_Transaction::TYPE_ORDER) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -493,6 +610,12 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
     {
         $payment = $this->getInfoInstance();
         if ($payment) {
+
+            // Pre-order (delayed tokenized) payment?
+            if ($this->_isPreorder($payment)) {
+                return true;
+            }
+
             $transactionAuth = $payment->lookupTransaction(false, Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
 
             if (!$transactionAuth || $transactionAuth->getIsClosed()) {
@@ -529,6 +652,35 @@ class Amazon_Payments_Model_PaymentMethod extends Mage_Payment_Model_Method_Abst
     public function canUseCheckout()
     {
         return (Mage::getSingleton('amazon_payments/config')->isEnabled() && Mage::helper('amazon_payments')->isEnableProductPayments() && ((Mage::helper('amazon_payments')->isCheckoutAmazonSession() && $this->getConfigData('checkout_page') == 'onepage') || $this->getConfigData('use_in_checkout')));
+    }
+
+    /**
+     * Using internal pages for input payment data
+     * Can be used in admin
+     *
+     * @return bool
+     */
+    public function canUseInternal()
+    {
+        // Allow admin to create order using token (Amazon billing agreement id)
+        if ($this->getConfigData('token_enabled')) {
+            // Admin session
+            $session = Mage::getSingleton('adminhtml/session_quote');
+            if ($session) {
+                if (($quote = $session->getQuote()) && $quote->getCustomerId() != null) {
+                    $row = Mage::getSingleton('amazon_payments/token')->getBillingAgreement($quote->getCustomerId());
+
+                    if ($token = $row->getAmazonBillingAgreementId()) {
+                        $session->setAmazonBillingAgreementId($token);
+                        return true;
+                    }
+                }
+                else {
+                    $session->unsAmazonBillingAgreementId();
+                }
+            }
+        }
+        return $this->_canUseInternal;
     }
 
     /**

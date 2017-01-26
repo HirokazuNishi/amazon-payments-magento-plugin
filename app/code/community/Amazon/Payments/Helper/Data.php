@@ -103,6 +103,16 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Retrieve ajax cart popup modal URL
+     *
+     * @return string
+     */
+    public function getAjaxCartModalUrl()
+    {
+        return Mage::getUrl('amazon_payments/token/ajaxcart', array('_secure'=>true));
+    }
+
+    /**
      * Does product attribute allow purchase with Amazon payments?
      */
     public function isEnableProductPayments()
@@ -362,7 +372,7 @@ class Amazon_Payments_Helper_Data extends Mage_Core_Helper_Abstract
         $data['country_id'] = $amazonAddress->getCountryCode();
         $data['city'] = $amazonAddress->getCity();
         $data['postcode'] = $amazonAddress->getPostalCode();
-        $data['telephone'] = $amazonAddress->getPhone() ? $amazonAddress->getPhone() : $this->__('-');
+        $data['telephone'] = $amazonAddress->getPhone() ? $amazonAddress->getPhone() : $this->__('000-000-0000');
 
         $data['street'] = array();
 

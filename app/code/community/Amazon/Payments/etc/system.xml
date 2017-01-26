@@ -39,10 +39,10 @@
                 <source_model>adminhtml/system_config_source_yesno</source_model>
                 <backend_model>amazon_payments/system_config_backend_enabled</backend_model>
                 <comment><model>amazon_payments/system_config_backend_enabled</model></comment>
-                <sort_order>5</sort_order>
+                <sort_order>0</sort_order>
                 <show_in_default>1</show_in_default>
                 <show_in_website>1</show_in_website>
-                <show_in_store>0</show_in_store>
+                <show_in_store>1</show_in_store>
             </enabled>
 
             <ap_credentials type="group" translate="label">
@@ -225,6 +225,26 @@
                         <depends><use_in_checkout>1</use_in_checkout></depends>
                         <config_path>payment/amazon_payments/sort_order</config_path>
                     </sort_order>
+                    <show_in_minicart translate="label">
+                        <label>Show in Minicart</label>
+                        <frontend_type>select</frontend_type>
+                        <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <sort_order>195</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <config_path>payment/amazon_payments/show_in_minicart</config_path>
+                    </show_in_minicart>
+                    <show_coupon translate="label">
+                        <label>Show Coupon/Discount Code</label>
+                        <frontend_type>select</frontend_type>
+                        <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <sort_order>195</sort_order>
+                        <show_in_default>1</show_in_default>
+                        <show_in_website>1</show_in_website>
+                        <show_in_store>1</show_in_store>
+                        <config_path>payment/amazon_payments/show_coupon</config_path>
+                    </show_coupon>
                     <buttons type="group" translate="label">
                         <label>Button Styles</label>
                         <show_in_default>1</show_in_default>
@@ -408,6 +428,45 @@
                               <show_in_store>0</show_in_store>
                               <config_path>payment/amazon_payments/is_async</config_path>
                           </is_async>
+
+                          <token_enabled translate="label">
+                              <label>Enable Tokenized Payments</label>
+                              <comment><![CDATA[Pre-authorizes payments for future purchases through a billing agreement, limited at $500 per month per token. If you require a higher limit, please contact an Amazon account manager.]]></comment>
+                              <frontend_type>select</frontend_type>
+                              <source_model>adminhtml/system_config_source_yesno</source_model>
+                              <sort_order>210</sort_order>
+                              <show_in_default>1</show_in_default>
+                              <show_in_website>1</show_in_website>
+                              <show_in_store>0</show_in_store>
+                              <config_path>payment/amazon_payments/token_enabled</config_path>
+                          </token_enabled>
+
+                          <token_required translate="label">
+                              <label>Require Tokenized Payments for Purchases</label>
+                              <comment><![CDATA[Require user to agree to billing agreement before completing their purchase.]]></comment>
+                              <frontend_type>select</frontend_type>
+                              <source_model>adminhtml/system_config_source_yesno</source_model>
+                              <sort_order>220</sort_order>
+                              <show_in_default>1</show_in_default>
+                              <show_in_website>1</show_in_website>
+                              <show_in_store>0</show_in_store>
+                              <depends><token_enabled>1</token_enabled></depends>
+                              <config_path>payment/amazon_payments/token_required</config_path>
+                          </token_required>
+
+                          <token_delayed translate="label">
+                              <label>Allow Pre-Orders</label>
+                              <comment><![CDATA[Delay payment authorization and capture until invoice is created.]]></comment>
+                              <frontend_type>select</frontend_type>
+                              <source_model>adminhtml/system_config_source_yesno</source_model>
+                              <sort_order>230</sort_order>
+                              <show_in_default>1</show_in_default>
+                              <show_in_website>1</show_in_website>
+                              <show_in_store>0</show_in_store>
+                              <depends><token_enabled>1</token_enabled></depends>
+                              <config_path>payment/amazon_payments/token_delayed</config_path>
+                          </token_delayed>
+
                       </fields>
                   </ap_advanced>
               </fields>

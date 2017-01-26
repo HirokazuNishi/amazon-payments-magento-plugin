@@ -200,7 +200,7 @@ class Amazon_Diagnostics_Adminhtml_DiagnosticsController extends Mage_Adminhtml_
                                     $mxml = json_decode($mxml, true);
 
                                     /* get version */
-                                    $this->log("    version: ". $mxml['modules'][$k]['version']);
+                                    $this->log("    version: " . (isset($mxml['modules']) ? $mxml['modules'][$k]['version'] : 'unknown'));
 
                                     /* get global blocks */
                                     $this->log("    [blocks]");

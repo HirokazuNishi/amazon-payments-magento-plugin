@@ -34,6 +34,9 @@
                     <login>
                         <table>amazon_login</table>
                     </login>
+                    <token>
+                        <table>amazon_payments_token</table>
+                    </token>
                 </entities>
             </login_mysql4>
             <sales>
@@ -77,6 +80,16 @@
                     <use>core_setup</use>
                 </connection>
             </payments_setup>
+            <payments_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </payments_write>
+            <payments_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </payments_read>
         </resources>
     </global>
     <admin>
@@ -145,6 +158,8 @@
             <amazon_checkout>/amazon_payments/checkout</amazon_checkout>
             <simplepath>/amazon_payments/simplepath</simplepath>
             <amazon_login_verify>/amazon_payments/customer/verify</amazon_login_verify>
+            <amazon_ajaxcart>/amazon_payments/token/ajaxcart</amazon_ajaxcart>
+            <amazon_token_checkout>/amazon_payments/token/checkout</amazon_token_checkout>
         </secure_url>
         <routers>
             <amazon_payments>
@@ -240,6 +255,7 @@
                 <button_size>medium</button_size>
                 <button_badge>1</button_badge>
                 <popup>1</popup>
+                <show_coupon>1</show_coupon>
                 <access_secret backend_model="adminhtml/system_config_backend_encrypted" />
                 <client_secret backend_model="adminhtml/system_config_backend_encrypted" />
             </amazon_payments>

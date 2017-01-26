@@ -5,3 +5,9 @@
 #amazon_modal .alphacube_w, #amazon_modal .alphacube_e { width:1px; }
 /*#amazon_modal_row2 { position:relative; margin-top:-20px; }*/
 /*#amazon_modal_close { display:none; right:-6px; }*/
+
+body.amazon-payments-token-ajaxcart .actions,
+body.amazon-payments-token-ajaxcart .btn-remove,
+body.amazon-payments-token-ajaxcart p.block-subtitle {
+  display:none;
+}

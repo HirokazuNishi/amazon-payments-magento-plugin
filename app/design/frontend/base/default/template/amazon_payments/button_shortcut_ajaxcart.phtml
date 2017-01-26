@@ -1,0 +1,65 @@
+<?php
+/**
+ * Amazon Payments
+ *
+ * @category    Amazon
+ * @package     Amazon_Payments
+ * @copyright   Copyright (c) 2014 Amazon.com
+ * @license     http://opensource.org/licenses/Apache-2.0  Apache License, Version 2.0
+ */
+?>
+
+<div id="<?php echo $this->getAmazonPayButtonId(); ?>" style="clear:both;"></div>
+
+<script type="text/javascript">
+  var authRequest;
+
+  AmazonPaymentsCallbacks["<?php echo $this->getAmazonPayButtonId(); ?>"] = function() {
+      var AmazonButtonOptions = {
+          type: "<?php echo $this->getButtonType(); ?>",
+          color: "<?php echo $this->getButtonColor(); ?>",
+          size: "<?php echo $this->getButtonSize(); ?>",
+          authorization: function() {
+              loginOptions = {
+                  scope: "profile payments:widget payments:shipping_address<?php print $this->getAdditionalScope(); ?>",
+                  response_type: 'token',
+                  popup: <?php print $this->isPopup(); ?>,
+                  state: 'shortcut'
+              };
+
+              authRequest = amazon.Login.authorize (loginOptions, "<?php echo !$this->isPopup() ? $this->getLoginAuthUrl() : $this->getCheckoutUrl(); ?>");
+          },
+          onError: function(error) {
+              console.log(error);
+          }
+      };
+
+      OffAmazonPayments.Button("<?php echo $this->getAmazonPayButtonId(); ?>", "<?php echo $this->getSellerId(); ?>", AmazonButtonOptions);
+
+      // jQuery wrapper -- OffAmazonPayments.jQuery loaded by Amazon API
+      (function($j) {
+
+          // Open links in parent window of modal
+          $j("a").attr("target", "_top");
+
+          <?php if (!$this->isPopup()) : // Open Amazon Login in parent window (not Ajax iframe) ?>
+          // Duplicate Amazon button
+          $j("#<?php echo $this->getAmazonPayButtonId(); ?> img")
+              .hide()
+              .clone()
+              .attr("id", "amazon-button-clone")
+              .show()
+              .appendTo("#<?php echo $this->getAmazonPayButtonId(); ?>")
+              .click(function() {
+                $j(window.parent.document).find("#<?php echo $this->getAmazonPayButtonId(); ?> img[id!='amazon-button-clone']").click();
+              });
+          <?php endif; ?>
+
+          $j("#<?php echo $this->getAmazonPayButtonId(); ?>").click(function() {
+              $j(this).css("opacity", 0.33);
+          });
+
+      })(OffAmazonPayments.jQuery);
+  }
+
+</script>

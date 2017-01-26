@@ -21,18 +21,11 @@
             <action method="addItem" ifconfig="payment/amazon_payments/enabled"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>
             <action method="addItem" ifconfig="payment/amazon_payments/enabled"><type>js_css</type><name>prototype/windows/themes/alphacube.css</name></action>
             <action method="addItem"><type>skin_css</type><name>amazon_payments/css/popup_alphacube.css</name><params/></action>
+            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
         </reference>
 
-        <reference name="checkout.cart">
-            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
-
-            <!-- ifconfig only works with action -->
-            <reference name="before_body_end">
-                <action method="append" ifconfig="payment/amazon_payments/enabled">
-                    <block>amazon_payments.script</block>
-                </action>
-            </reference>
-
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
         </reference>
 
         <!-- To Move Amazon Payments button around on the cart page, change the after="" attribute to before="" in the below block tags -->
@@ -57,6 +50,10 @@
 
         <reference name="head">
             <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+        </reference>
+
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
         </reference>
 
         <reference name="checkout.onepage">
@@ -174,7 +171,11 @@
         <reference name="root">
             <action method="setTemplate"><template>page/1column.phtml</template></action>
         </reference>
+
+
+
         <reference name="content">
+            <block type="core/messages" name="messages" as="messages"/>
 
             <block type="amazon_payments/checkout" name="amazon_payments.checkout" template="amazon_payments/checkout.phtml">
 
@@ -182,13 +183,16 @@
                     <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="checkout/onepage/shipping_method/available.phtml"/>
                     <block type="checkout/onepage_shipping_method_additional" name="checkout.onepage.shipping_method.additional" as="additional" template="checkout/onepage/shipping_method/additional.phtml"/>
                 </block>
+                <block type="checkout/cart_coupon" name="checkout.amazon_payments.coupon" as="coupon" template="amazon_payments/coupon.phtml"/>
                 <block type="checkout/onepage_review" name="checkout.onepage.review" as="review" template="checkout/onepage/review.phtml"/>
-
             </block>
         </reference>
 
         <reference name="head">
-            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+            <block type="amazon_payments/script" name="amazon_payments.script.checkout" template="amazon_payments/script.phtml" />
+        </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
         </reference>
     </checkout_amazon_payments_index>
 
@@ -199,10 +203,17 @@
         <!-- Mage_Checkout -->
         <remove name="right"/>
         <remove name="left"/>
-
         <block type="checkout/onepage_shipping_method_available" name="root" output="toHtml" template="checkout/onepage/shipping_method/available.phtml"/>
-
     </checkout_amazon_payments_shippingmethod>
+
+    <!--
+    ShipperHQ
+    -->
+    <checkout_amazon_payments_shippingmethod_shipperhq>
+        <remove name="right"/>
+        <remove name="left"/>
+        <block type="shipperhq_frontend/checkout_onepage_shipping_method_available" name="root" output="toHtml" template="shipperhq/checkout/onepage/shipping_method/available.phtml"/>
+    </checkout_amazon_payments_shippingmethod_shipperhq>
 
     <!--
     Amazon checkout shipping method additional
@@ -215,8 +226,6 @@
         <block type="checkout/onepage_shipping_method_additional" name="root" output="toHtml" template="checkout/onepage/shipping_method/additional.phtml">
             <action method="setDontDisplayContainer"><param>1</param></action>
         </block>
-
-
 
     </checkout_amazon_payments_additional>
 
@@ -260,6 +269,17 @@
     -->
     <catalog_product_view>
 
+        <reference name="head">
+            <action method="addJs" ifconfig="payment/amazon_payments/enabled"><script>prototype/window.js</script></action>
+            <action method="addItem" ifconfig="payment/amazon_payments/enabled"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>
+            <action method="addItem" ifconfig="payment/amazon_payments/enabled"><type>js_css</type><name>prototype/windows/themes/alphacube.css</name></action>
+            <action method="addItem"><type>skin_css</type><name>amazon_payments/css/popup_alphacube.css</name><params/></action>
+        </reference>
+
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        </reference>
+
         <block type="amazon_payments/button" name="addtocart-amazon-button" template="amazon_payments/button_shortcut.phtml" />
 
         <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
@@ -292,15 +312,55 @@
     Sidecart/Minicart Shortcut
     -->
     <default>
+        <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml">
+            <action method="setIsDefault"><is_default>1</is_default></action>
+        </block>
+        <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        <block type="amazon_payments/button" name="AmazonPayButtonSideCart" template="amazon_payments/button.phtml"/>
+
         <reference name="head">
-            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml">
-                <action method="setIsDefault"><is_default>1</is_default></action>
-            </block>
+            <action method="append" ifconfig="payment/amazon_payments/show_in_minicart">
+                <block>amazon_payments.script</block>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <action method="append" ifconfig="payment/amazon_payments/show_in_minicart">
+                <block>amazon_payments.script.async</block>
+            </action>
         </reference>
         <reference name="cart_sidebar.extra_actions">
-            <block type="amazon_payments/button" name="AmazonPayButtonSideCart" template="amazon_payments/button.phtml"/>
+            <action method="append" ifconfig="payment/amazon_payments/show_in_minicart">
+                <block>AmazonPayButtonSideCart</block>
+            </action>
         </reference>
     </default>
+
+    <!--
+    Ajax cart for Token Payments
+    -->
+    <amazon_payments_token_ajaxcart>
+        <reference name="root">
+            <action method="setTemplate"><template>page/popup.phtml</template></action>
+        </reference>
+        <reference name="head">
+            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+            <action method="addItem"><type>skin_css</type><name>amazon_payments/css/popup_alphacube.css</name><params/></action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        </reference>
+
+        <reference name="content">
+            <block type="checkout/cart_sidebar" name="cart_sidebar" template="checkout/cart/sidebar.phtml" before="-">
+                <action method="addItemRender"><type>simple</type><block>checkout/cart_item_renderer</block><template>checkout/cart/sidebar/default.phtml</template></action>
+                <action method="addItemRender"><type>grouped</type><block>checkout/cart_item_renderer_grouped</block><template>checkout/cart/sidebar/default.phtml</template></action>
+                <action method="addItemRender"><type>configurable</type><block>checkout/cart_item_renderer_configurable</block><template>checkout/cart/sidebar/default.phtml</template></action>
+                <action method="addItemRender"><type>bundle</type><block>bundle/checkout_cart_item_renderer</block><template>checkout/cart/sidebar/default.phtml</template></action>
+            </block>
+
+            <block type="amazon_payments/button" name="addtocart-amazon-button" template="amazon_payments/button_shortcut_ajaxcart.phtml" />
+        </reference>
+    </amazon_payments_token_ajaxcart>
 
     <!--
     Acceptance Mark/Badge
@@ -330,6 +390,9 @@
         <reference name="head">
             <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
         </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        </reference>
     </firecheckout_index_index>
 
     <!--
@@ -338,6 +401,9 @@
     <opc_index_index translate="label">
         <reference name="head">
             <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+        </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
         </reference>
     </opc_index_index>
 
@@ -348,6 +414,10 @@
 
         <reference name="head">
             <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+        </reference>
+
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
         </reference>
 
         <reference name="checkout.onepage">
@@ -383,6 +453,9 @@
         <reference name="head">
             <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
         </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        </reference>
         <reference name="my.account.wrapper">
             <block type="amazon_payments/sales_view" template="amazon_payments/sales/order/amazon_wallet.phtml" before="info">
                 <block type="amazon_payments/login_button" name="amazon_login.no-or" template="amazon_payments/login/button.phtml"/>
@@ -395,35 +468,33 @@
     Login
     -->
     <customer_account_login translate="label">
+        <reference name="head">
+            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
+        </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        </reference>
 
-        <block type="amazon_payments/login_script" name="amazon_login.script" template="amazon_payments/login/script.phtml" />
         <block type="amazon_payments/login_button" name="amazon_login.button_create" template="amazon_payments/login/button.phtml" before="content" />
 
         <!-- ifconfig only works with action -->
-        <reference name="after_body_start">
-            <action method="append" ifconfig="payment/amazon_payments/enabled">
-                <block>amazon_login.script</block>
-            </action>
-        </reference>
-
         <reference name="content">
             <action method="insert" ifconfig="payment/amazon_payments/enabled">
                 <block>amazon_login.button_create</block>
             </action>
         </reference>
 
-
     </customer_account_login>
 
     <customer_account_create translate="label">
-        <block type="amazon_payments/login_script" name="amazon_login.script" template="amazon_payments/login/script.phtml" />
-        <block type="amazon_payments/login_button" name="amazon_login.button_create" template="amazon_payments/login/button.phtml" after="customer_form_login" />
-
-        <reference name="after_body_start">
-            <action method="append" ifconfig="payment/amazon_payments/enabled">
-                <block>amazon_login.script</block>
-            </action>
+        <reference name="head">
+            <block type="amazon_payments/script" name="amazon_payments.script" template="amazon_payments/script.phtml" />
         </reference>
+        <reference name="before_body_end">
+            <block type="amazon_payments/script" name="amazon_payments.script.async" template="amazon_payments/script_async.phtml" />
+        </reference>
+
+        <block type="amazon_payments/login_button" name="amazon_login.button_create" template="amazon_payments/login/button.phtml" after="customer_form_login" />
 
         <reference name="customer.form.register.fields.before">
             <action method="append" ifconfig="payment/amazon_payments/enabled">
@@ -435,7 +506,7 @@
 
     <customer_account_logoutsuccess>
         <reference name="content">
-            <block type="amazon_payments/login_script" name="amazon_login.script.logout" template="amazon_payments/login/script.phtml" />
+            <block type="amazon_payments/login_script" name="amazon_login.script.logout" template="amazon_payments/login/script_logout.phtml" />
         </reference>
     </customer_account_logoutsuccess>
 

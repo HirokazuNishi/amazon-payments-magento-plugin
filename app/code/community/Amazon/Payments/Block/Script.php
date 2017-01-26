@@ -96,5 +96,25 @@ class Amazon_Payments_Block_Script extends Mage_Core_Block_Template
         return Mage::helper('amazon_payments/data')->isPopup();
     }
 
+    /**
+     * Is enabled?
+     */
+    public function isEnabled()
+    {
+        return Mage::helper('amazon_payments/data')->isEnabled();
+    }
+
+    /**
+     * Is loaded?
+     */
+    public function isLoaded()
+    {
+        if ($this->getIsLoaded()) {
+            return true;
+        }
+        $this->setIsLoaded(true);
+        return false;
+    }
+
 
 }

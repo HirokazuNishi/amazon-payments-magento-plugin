@@ -10,7 +10,7 @@
 
 abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Controller_Action
 {
-    protected $_amazonOrderReferenceId;
+    protected $_amazonOrderReferenceId, $_amazonBillingAgreementId, $_amazonBillingAgreementConsent;
     protected $_checkoutUrl;
 
     /**
@@ -19,6 +19,22 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
     public function getAmazonOrderReferenceId()
     {
         return $this->_amazonOrderReferenceId;
+    }
+
+    /**
+     * Return Amazon Billing Agreement Id
+     */
+    public function getAmazonBillingAgreementId()
+    {
+        return $this->_amazonBillingAgreementId;
+    }
+
+    /**
+     * Return Amazon Billing Agreement Consent
+     */
+    public function getAmazonBillingAgreementConsent()
+    {
+        return $this->_amazonBillingAgreementConsent;
     }
 
     /**
@@ -43,6 +59,9 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
             Mage::getSingleton('checkout/session')->setAmazonOrderReferenceId($this->_amazonOrderReferenceId);
         }
 
+        $this->_amazonBillingAgreementId = htmlentities($this->getRequest()->getParam('amazon_billing_agreement_id'));
+        $this->_amazonBillingAgreementConsent = $this->getRequest()->getParam('amazon_billing_agreement_consent') == 'true' ? true : false;
+
         // User is logging in...
 
         $token = htmlentities($this->getRequest()->getParam('access_token'));
@@ -52,7 +71,7 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
 
             if (!Mage::getSingleton('customer/session')->isLoggedIn()) {
                 if ($this->_getConfig()->isLoginEnabled() || !$this->_getOnepage()->getQuote()->isAllowedGuestCheckout()) {
-                    $customer = $_amazonLogin->loginWithToken($token, $this->_checkoutUrl);
+                    $customer = $_amazonLogin->loginWithToken($token, $this->getRequest()->getParam('account_login') ? 'customer/account' : $this->_checkoutUrl);
                 }
                 // Guest
                 else {
@@ -74,11 +93,27 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
             else if (Mage::app()->getRequest()->getParams('account') == 'redirect') {
                 $this->_redirect('customer/account');
             }
-            // Redirect to clean URL
+            // User signed-in via popup
             else if (!$this->getRequest()->getParam('ajax')) {
+                $state = $this->getRequest()->getParam('state');
+                // Shortcut clicked (e.g. from product page)
+                if ($state == 'shortcut' && $this->_getConfig()->isTokenEnabled()) {
+                    // Does user have billing agreement token?
+                    $token = Mage::getModel('amazon_payments/token')->getBillingAgreement();
+                    if ($amazonBillingAgreementId = $token->getAmazonBillingAgreementId()) {
+                        $this->_redirect('amazon_payments/token/checkout');
+                        return;
+                    }
+                }
+
+                // Redirect to clean URL
                 $this->_redirect($this->_checkoutUrl, array('_secure' => true));
                 return;
             }
+
+
+
+
 
 
         }
@@ -214,9 +249,14 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
      */
     protected function _saveShipping()
     {
-        if ($this->getAmazonOrderReferenceId()) {
+        if ($this->getAmazonOrderReferenceId() || $this->getAmazonBillingAgreementId()) {
 
-            $orderReferenceDetails = $this->_getApi()->getOrderReferenceDetails($this->getAmazonOrderReferenceId(), Mage::getSingleton('checkout/session')->getAmazonAccessToken());
+            if ($this->getAmazonBillingAgreementId()) {
+                $orderReferenceDetails = $this->_getApi()->getBillingAgreementDetails($this->getAmazonBillingAgreementId(), Mage::getSingleton('checkout/session')->getAmazonAccessToken());
+            }
+            else {
+                $orderReferenceDetails = $this->_getApi()->getOrderReferenceDetails($this->getAmazonOrderReferenceId(), Mage::getSingleton('checkout/session')->getAmazonAccessToken());
+            }
 
             $address = $orderReferenceDetails->getDestination()->getPhysicalDestination();
 

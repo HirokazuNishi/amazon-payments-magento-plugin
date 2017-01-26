@@ -81,8 +81,23 @@ class Amazon_Payments_Model_Async extends Mage_Core_Model_Abstract
         $message = '';
 
         try {
-
+            $payment = $order->getPayment();
+            $method  = $payment->getMethodInstance(); // Amazon_Payments_Model_PaymentMethod
+            $amount  = $payment->getAmountOrdered();
             $amazonOrderReference = $order->getPayment()->getAdditionalInformation('order_reference');
+
+            // Pre-orders
+            if ($method->_isPreorder($payment)) {
+                // Authorize pre-order on manual sync
+                if ($isManualSync) {
+                    $method->authorize($payment, $amount);
+                    $amazonOrderReference = $payment->getAdditionalInformation('order_reference');
+                }
+                // Ignore pre-order if cron
+                else {
+                    return;
+                }
+            }
 
             $orderReferenceDetails = $_api->getOrderReferenceDetails($amazonOrderReference);
 
